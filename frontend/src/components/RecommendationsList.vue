@@ -1,34 +1,57 @@
 <template>
   <div class="recommendationsList">
     <h2>个性化推荐活动</h2>
-    <ul>
-      <!-- 使用 v-for 循环渲染推荐活动列表 -->
+    <ul>\
       <li v-for="activity in recommendedActivities" :key="activity.id">
         {{ activity.title }}
+        <button @click="goToInfoDisplay(activity)">查看详情</button>
       </li>
     </ul>
+
+    <InfoDisplay :activity="selectedActivity" v-if="selectedActivity" />
   </div>
 </template>
 
 <script>
+import InfoDisplay from './InfoDisplay.vue';
+
 export default {
   name: 'RecommendationsListComponent',
+  components: {
+    InfoDisplay
+  },
   data() {
     return {
-      recommendedActivities: [] // 推荐活动列表，初始为空数组
+      recommendedActivities: [
+        {
+          id: 1,
+          title: '示例活动 1',
+          category: '演出',
+          date: '2024-04-15',
+          location: '示例地点 1',
+          description: '描述1'
+        },
+        {
+          id: 2,
+          title: '示例活动 2',
+          category: '展览',
+          date: '2024-04-16',
+          location: '示例地点 2',
+          description: '描述2'
+        },
+      ],
+      selectedActivity: null
     };
   },
   methods: {
+    goToInfoDisplay(activity) {
+      this.selectedActivity = activity;
+    },
     fetchRecommendedActivities() {
-      // 根据用户的历史活动和偏好从后端获取个性化推荐活动数据
-      // 这里可以调用后端 API 或进行相关计算和逻辑处理
-      // 更新 this.recommendedActivities 数组
     }
   },
   mounted() {
-    // 组件挂载后，调用方法获取推荐活动数据
     this.fetchRecommendedActivities();
   }
 };
 </script>
-
