@@ -7,6 +7,9 @@
     <div v-else-if="currentComponent === 'events'">
       <EventsPage />
     </div>
+    <div v-else-if="currentComponent === 'booking'">
+      <Event_Booking />
+    </div>
     <div v-else-if="currentComponent === 'recommendations'">
       <RecommendationsList />
     </div>
@@ -20,6 +23,7 @@
 import NavbarPage from './components/NavbarPage.vue';
 import CommunityPage from './components/CommunityPage.vue';
 import EventsPage from './components/EventsPage.vue';
+import Event_Booking from './components/EventBooking.vue';
 import RecommendationsList from './components/RecommendationsList.vue';
 import axios from 'axios';
 
@@ -28,6 +32,7 @@ export default {
     NavbarPage,
     CommunityPage,
     EventsPage,
+    Event_Booking,
     RecommendationsList,
   },
   data() {
