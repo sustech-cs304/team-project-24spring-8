@@ -20,10 +20,7 @@
 </template>
 
 <script>
-import NavbarPage from './components/NavbarPage.vue';
-import CommunityPage from './components/CommunityPage.vue';
-import EventsPage from './components/EventsPage.vue';
-import RecommendationsList from './components/RecommendationsList.vue';
+
 import axios from 'axios';
 import router from './router';
 
