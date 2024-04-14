@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h3>Event List</h3>
+      <h3>活动列表</h3>
       <ul>
         <li v-for="event in events" :key="event.id" @click="selectEvent(event)">
           {{ event.name }} - {{ event.date }}

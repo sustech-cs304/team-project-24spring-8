@@ -1,8 +1,10 @@
 <template>
-    <div>
-      <h2>Events Page</h2>
-      <EventList :events="events" @selectEvent="showEventDetails" />
-      <EventDetailsModal :event="selectedEvent" v-if="selectedEvent" @close="closeEventDetails" />
+    <div class="eventspage">
+        <header>
+            <h2>活动</h2>
+        </header>
+        <EventList :events="events" @selectEvent="showEventDetails" />
+        <EventDetailsModal :event="selectedEvent" v-if="selectedEvent" @close="closeEventDetails" />
     </div>
   </template>
   
@@ -37,11 +39,20 @@
   </script>
   
   <style scoped>
-  /* Add your styles here */
+    .eventspage {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: left;
+    }
+
+    header h2 {
+        color: #34495e;
+        font-size: 24px;
+    }
+
   </style>
   
-  
-
-<style>
-/* 样式 */
-</style>

@@ -2,7 +2,7 @@
     <div class="modal" @click.self="$emit('close')">
       <div class="modal-content">
         <span class="close" @click="$emit('close')">&times;</span>
-        <h2>Event Details</h2>
+        <h2>详细信息</h2>
         <h3>{{ event.name }}</h3>
         <p>Date: {{ event.date }}</p>
         <p>Description: {{ event.description }}</p>

@@ -16,31 +16,20 @@
     <!-- 其他组件 -->
     <h1>{{ message }}</h1>
     <button @click="fetchMessage">Fetch Message from FastAPI</button>
+    <button @click="goToReminders">查看提醒</button>
+    <button @click="goToUserProfile">用户配置</button>
+    <button @click="goToEventsPage">活动</button>
+    <button @click="goToEventBooking">活动预订</button>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import NavbarPage from './components/NavbarPage.vue';
-import CommunityPage from './components/CommunityPage.vue';
-import EventsPage from './components/EventsPage.vue';
-import Event_Booking from './components/EventBooking.vue';
-import RecommendationsList from './components/RecommendationsList.vue';
 import axios from 'axios';
+import router from './router';
 
 export default {
-  components: {
-    NavbarPage,
-    CommunityPage,
-    EventsPage,
-    Event_Booking,
-    RecommendationsList,
-  },
-  data() {
-    return {
-      currentComponent: 'community',
-      message: '',
-    };
-  },
+  router,
   methods: {
     async fetchMessage() {
       try {
@@ -50,9 +39,18 @@ export default {
         console.error(error);
       }
     },
-    setCurrentComponent(component) {
-      this.currentComponent = component;
+    goToReminders() {
+      this.$router.push({ name: 'ActivityReminders' });
     },
+    goToUserProfile() {
+      this.$router.push({ name: 'UserProfile' });
+    },
+    goToEventsPage() {
+      this.$router.push({ name: 'EventsPage' });
+    },
+    goToEventBooking() {
+      this.$router.push({ name: 'EventBooking' });
+    }
   },
 };
 </script>
