@@ -15,6 +15,7 @@
     <button @click="fetchMessage">Fetch Message from FastAPI</button>
     <button @click="goToReminders">查看提醒</button>
     <button @click="goToUserProfile">用户配置</button>
+    <button @click="goToRecommendationsList">个性化推荐</button>
     <router-view></router-view>
   </div>
 </template>
@@ -39,7 +40,10 @@ export default {
     },
     goToUserProfile() {
       this.$router.push({ name: 'UserProfile' });
-    }
+    },
+    goToRecommendationsList() {
+      this.$router.push({ name: 'RecommendationsList' });
+    },
   },
 };
 </script>

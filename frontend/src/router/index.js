@@ -2,6 +2,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import ActivityReminders from '../components/ActivityReminders.vue';
 import UserProfile from '../components/UserProfile.vue';
+import RecommendationsList from '../components/RecommendationsList.vue';
+
 
 const router = createRouter({
     history: createWebHistory(),
@@ -15,6 +17,11 @@ const router = createRouter({
             path: '/user-profile',
             name: 'UserProfile',
             component: UserProfile
+        },
+        {
+            path: '/recommendations',
+            name: 'RecommendationsList',
+            component: RecommendationsList
         }
     ]
 });
