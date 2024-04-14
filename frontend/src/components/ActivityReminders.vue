@@ -37,26 +37,28 @@ export default {
   max-width: 600px;
   margin: 20px auto;
   padding: 20px;
-  background: white;
+  background: linear-gradient(135deg, #957DAD, #D291BC); /* Purple gradient background */
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   text-align: left;
 }
 
 header h2 {
-  color: #34495e;
+  color: #6A0DAD; /* Deep purple for header to stand out */
   font-size: 24px;
+  text-align: center;
 }
 
 .reminder-item {
   padding: 10px 0;
-  border-bottom: 1px solid #ecf0f1;
+  border-bottom: 1px solid #EEE;
   cursor: pointer;
   transition: background-color 0.3s;
+  color: #FFFFFF; /* White text for better readability */
 }
 
 .reminder-item:hover {
-  background-color: #ecf0f1;
+  background-color: #f4eaff; /* Very light purple background on hover */
 }
 
 .settings {
@@ -101,7 +103,7 @@ header h2 {
 }
 
 input:checked + .slider {
-  background-color: #8e44ad;
+  background-color: #8e44ad; /* Consistent purple theme for toggle */
 }
 
 input:focus + .slider {

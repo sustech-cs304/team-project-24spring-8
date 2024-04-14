@@ -10,11 +10,11 @@
     <div v-else-if="currentComponent === 'recommendations'">
       <RecommendationsList />
     </div>
-    <!-- 其他组件 -->
     <h1>{{ message }}</h1>
     <button @click="fetchMessage">Fetch Message from FastAPI</button>
     <button @click="goToReminders">查看提醒</button>
     <button @click="goToUserProfile">用户配置</button>
+    <button @click="goToPostList">帖子列表</button>
     <router-view></router-view>
   </div>
 </template>
@@ -25,6 +25,11 @@ import router from './router';
 
 export default {
   router,
+  data() {
+    return {
+      currentComponent: 'home'
+    };
+  },
   methods: {
     async fetchMessage() {
       try {
@@ -39,6 +44,9 @@ export default {
     },
     goToUserProfile() {
       this.$router.push({ name: 'UserProfile' });
+    },
+    goToPostList() {
+      this.$router.push({ name: 'PostList' });
     }
   },
 };
