@@ -59,11 +59,11 @@ export default {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  color: #fff; /* Ensuring text is visible on darker backgrounds */
+  color: #fff;
 }
 
 .user-profile h2 {
-  color: #D291BC; /* Consistent purple theme for headers */
+  color: #5e3370; /* Updated to a darker purple */
   text-align: center;
 }
 
@@ -79,30 +79,35 @@ export default {
 label {
   display: block;
   margin-bottom: 5px;
-  color: #f0e8f0; /* Light purple text for better readability */
+  color: #f0e8f0;
 }
 
 input[type="text"], input[type="email"], input[type="file"] {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
   border-radius: 5px;
-  background: #ffffff50; /* Slightly transparent white for inputs */
-  color: #000; /* Dark text for input for readability */
+  background: #ffffff30; /* More subtle and seamless background */
+  color: #fff;
+  border: 2px solid #ffffff50; /* Subtle border in white to blend with the background */
+  box-shadow: none; /* Removing internal shadows for a flatter design */
+}
+
+input::placeholder {
+  color: #e6e6e6; /* Lighter placeholder text for better readability */
 }
 
 .save-btn {
-  background-color: #8e44ad; /* Dark purple button */
+  background-color: #8e44ad;
   color: white;
   border: none;
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .save-btn:hover {
-  background-color: #5e3370; /* Lighter purple when hovered */
+  background-color: #5e3370;
 }
 
 .avatar-upload {
@@ -119,14 +124,14 @@ input[type="text"], input[type="email"], input[type="file"] {
 }
 
 .upload-label {
-  display: block;
-  color: #8e44ad; /* Maintaining the purple theme */
+  display:block;
+  color: #8e44ad;
   cursor: pointer;
   font-size: 0.9em;
   transition: color 0.3s ease;
 }
 
 .upload-label:hover {
-  color: #5e3370; /* Lighter purple on hover */
+  color: #5e3370;
 }
 </style>
