@@ -103,7 +103,7 @@ The frontend structure is organized as follows:
 - **Minimalist Color Scheme**: We use a simple palette primarily based on whites and grays to ensure readability and focus.
 - **Generous Use of Space**: To avoid clutter and enhance user focus on content.
 - **Intuitive Navigation**: Ensuring that the user interface is easy to understand and interact with.
-
+![[Pasted image 20240415162047.png]]
 ### Key Interfaces
 
 1. **Home Page**:
@@ -145,7 +145,10 @@ This revised approach will help streamline our efforts and ensure that we meet o
 ### Demo and Deliverables
 
 - **Current Implementation**:
-  - A demo of the key
+![[Pasted image 20240415161601.png|500]]
+![[Pasted image 20240415161631.png|500]]
+![[Pasted image 20240415161646.png|500]]
+![[Pasted image 20240415161700.png|500]]
 
  functionalities such as user login, event booking, and profile management will be shown.
   - These features represent the core deliverables for this sprint.
@@ -153,6 +156,11 @@ This revised approach will help streamline our efforts and ensure that we meet o
 ### Team Contributions
 
 - **Member Contributions**:
-  //TODO
+ Yukun Yang: Four pages of Frontend & Report
+ Honglie Li: Backend Skeleton & Report
+ Zhelin Chu: Two pages of Frontend
+ Hanting Li: Two pages of Frontend
+ Jiaxuan Li: Two pages of Frontend
+ 
 
 - Contributions are based on individual tasks and responsibilities, ensuring that all members are acknowledged for their specific roles.
