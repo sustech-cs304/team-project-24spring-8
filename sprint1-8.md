@@ -1,8 +1,8 @@
-# sprint1-8
+## Part I. Architectural Design
 
-## Architectural Design
+### Backend Architecture Overview
 
-### 1. 后端目录结构简介
+The backend structure is organized as follows:
 
 ```bash
 .
@@ -18,35 +18,32 @@
 └── utils
 ```
 
-项目的顶层包含了几个目录和一个Python脚本文件(`main.py`​)，这些目录包括：`apps`​、`core`​、`db`​、以及`utils`​。下面将逐一说明这些目录和文件的用途。
+#### Detailed Explanation
 
-#### 1.1 `apps`​目录
+1. **`apps` Directory**:
+   - Each subdirectory under `apps` represents a separate application module within the project. This modular structure helps in maintaining the scalability and manageability of the project.
+   - **Subdirectories**:
+     - `community`: Handles all functionalities related to user community interactions like forums or user groups.
+     - `events`: Contains code and logic for event management and bookings.
+     - `infodisplay`: Manages the display of information to the user.
+     - `recommendations`: Implements algorithms for suggesting events or content based on user preferences.
+     - `reminders`: Manages sending notifications and reminders to users.
 
-​`apps`​目录下包含了多个子目录，每个目录代表项目中的一个独立应用，这种结构有助于保持项目的模块化，使得管理和开发各个功能模块更为高效。具体的子目录如下：
+2. **`core` Directory**:
+   - This includes essential middleware, configuration files, and utility modules that are core to the operation of the backend.
 
-* ​`community`​：用于处理社区互动相关的功能
-* ​`events`​：包含与事件处理相关的代码
-* ​`infodisplay`​：用于信息展示相关的功能
-* ​`recommendations`​：用于实现推荐算法
-* ​`reminders`​：用于实现提醒功能
+3. **`db` Directory**:
+   - Manages database interactions, includes models, schema definitions, and database access utilities.
 
-#### 1.2 `core`​目录
+4. **`utils` Directory**:
+   - Contains helper functions and utilities that support various backend functionalities but are not directly exposed as web services.
 
-​`core`​目录包含项目的核心功能，比如共用的配置文件、中间件、依赖项以及其他核心模块。在此目录下开发的代码通常是多个应用间共享的。
+5. **`main.py`**:
+   - The entry point for the FastAPI application. This script configures and starts the web server and includes route definitions.
 
-#### 1.3 `db`​目录
+### Frontend Architecture Overview
 
-​`db`​目录负责与数据库相关的所有事务处理，例如定义数据库模型、数据库会话管理以及提供数据库操作的辅助函数等。这有助于集中管理数据库访问逻辑，提高代码的复用性和维护性。
-
-#### 1.4 `utils`​目录
-
-​`utils`​目录包含各种实用工具函数，这些函数支持其他模块的运行，但并不直接提供Web服务的API接口。例如，可能包含日志处理、数据格式化、验证工具等。
-
-#### 1.5 `main.py`​
-
-​`main.py`​是FastAPI应用的入口文件。它负责配置和启动服务，通常包括API路由的定义、应用实例的创建和配置以及服务器的启动代码。
-
-### 2.前端目录结构简介
+The frontend structure is organized as follows:
 
 ```bash
 .
@@ -66,127 +63,104 @@
 └── main.js
 ```
 
-项目顶层包含两个核心文件(`App.vue`​, `main.js`​)和两个目录(`assets`​, `components`​)，这些是构建Vue前端应用的基础。
+#### Detailed Explanation
 
-#### 2.1 `App.vue`​
+1. **`App.vue`**:
+   - Serves as the root component where all other components are imported and integrated.
 
-这是Vue应用的根组件，所有的子组件都在这个文件中被引入和布局。它充当整个Vue应用的容器。
+2. **`main.js`**:
+   - Entry script for the Vue application which sets up the Vue instance, mounts the app, and includes essential plugins like Vue Router.
 
-#### 2.2 `main.js`​
+3. **`assets` Directory**:
+   - Houses static resources such as images and styling files used across the application.
 
-这是Vue应用的入口文件，它负责创建Vue实例、挂载App组件以及导入必要的依赖，如Vuex（状态管理）、Vue Router（路由管理）等。
+4. `components` Directory
+- This directory includes all the Vue component files used to build various parts of the application interface. Each component is designed to handle specific functionality within the app's ecosystem. Here are the details for each component:
 
-#### 2.3 `assets`​目录
+- Navbar.vue: This component contains the navigation menu, which allows users to easily access different pages such as the Community, Events, and Recommendations pages. It is crucial for facilitating user movement throughout the app.
 
-用于存放静态资源，例如图片、样式文件等。在这个示例中，有一个`logo.png`​图像文件，可能被用作应用的徽标。
+- CommunityPage.vue: This page is centered around social interaction and content sharing among users. It might include sub-components like a post list and post details, enabling users to engage with community content.
 
-#### 2.4 `components`​目录
+- EventsPage.vue: Displays a list of upcoming events that users can browse and choose to book. It serves as the main interface for users looking to participate in events.
 
-包含所有Vue组件文件，这些组件被用于构建应用的各个部分。具体组件如下：
+- EventBooking.vue: Manages the logic for booking events. This includes form submissions for booking, choosing tickets, and other related functionalities.
 
-* **Navbar.vue**: 包含导航菜单，用户可以通过它访问不同的页面，如社区、活动、推荐等。
-* **CommunityPage.vue**: 社交互动和内容分享的页面，可能包括更多子组件如帖子列表、帖子详情等。
-* **EventsPage.vue**: 显示即将举行的活动列表，允许用户选择和预订。
-* **EventBooking.vue**: 处理活动预订的逻辑，例如表单提交、票务选择等。
-* **Recommendations.vue**: 显示基于用户历史活动和偏好的个性化推荐活动。
-* **InfoDisplay.vue**: 用于显示活动的详细信息，如类别、日期、地点和描述。
-* **Reminders.vue**: 用于发送和显示活动提醒的组件。
-* **UserProfile.vue**: 允许用户查看和编辑个人信息和偏好设置的页面。
-* **Footer.vue**: 显示版权和导航链接的页脚组件。
+- Recommendations.vue: Shows personalized event recommendations based on users' past activities and preferences. This component uses data analytics to suggest relevant events to enhance user experience.
 
-## UI Design
+- InfoDisplay.vue: Provides detailed information about events, such as category, date, location, and a description. This component helps users make informed decisions about attending events.
 
-### 1.设计理念
+- Reminders.vue: Responsible for sending and displaying reminders about events. It helps ensure that users are aware of upcoming events they are interested in or have registered for.
 
-我们的UI设计采用“简约空白风”，核心特点包括：
+- UserProfile.vue: Allows users to view and edit their personal information and settings. This personalization helps users manage their experience and preferences within the app.
 
-* **极简主义色彩方案**：使用大量的白色背景，以及黑色和灰色的文字，确保内容可读性和视觉冲击。
-* **大量留白**：在布局中加入大量的空白区域，减少视觉干扰，使用户焦点更集中于内容本身。
-* **简洁的图形和布局**：使用简单图形和统一的布局风格，提升界面的整体协调性。
-* **直观的用户导航**：界面设计清晰，用户易于理解和操作，提升用户体验。
+- Footer.vue: Displays copyright and navigation links at the bottom of each page. It provides essential links back to the main sections of the app and legal information.
 
-### 2.技术栈
+- These components together create a cohesive and functional user interface that supports the diverse needs of the app’s user base. Each component is modular and can be updated independently, making the app scalable and maintainable.
+## Part II. UI Design
 
-* **Vue 3**：使用Composition API和Options API进行高效的状态管理和逻辑复用。
-* **Vite**：作为构建工具，提供快速的开发反馈和优化的生产构建。
+### Design Philosophy
 
-### 3.主要界面设计
+- **Minimalist Color Scheme**: We use a simple palette primarily based on whites and grays to ensure readability and focus.
+- **Generous Use of Space**: To avoid clutter and enhance user focus on content.
+- **Intuitive Navigation**: Ensuring that the user interface is easy to understand and interact with.
+![[Pasted image 20240415162047.png]]
+### Key Interfaces
 
-#### 1. 首页界面
+1. **Home Page**:
+   - Features primary navigation and key visuals that represent the core functionalities of the platform.
 
-作为用户的第一印象，首页界面简洁而富有吸引力。
+2. **Community Page**:
+   - Designed to foster user interaction and content sharing.
 
-**功能组成**：
+3. **Events Booking Page**:
+   - Allows users to view and book events. Simplifies the process through an intuitive layout.
 
-* **顶部导航栏**（使用Vue Router进行页面路由）。
-* **主视觉区域**：展示核心功能和品牌理念。
-* **信息板块**：快速提供新闻更新或用户指南。
+4. **User Profile Page**:
+   - Provides users with the ability to edit their personal information in a user-friendly format.
 
-#### 2. 社区页面
+### Screenshots for Demo
 
-设计侧重于增强用户互动和内容分享的体验。
+- Please replace this text with actual images or links to images that showcase the UI designs for each key interface mentioned above. These images are crucial for visualizing the implemented designs and will be displayed during the project presentations.
 
-**功能组成**：
+## Part III. Retrospective and Planning
 
-* **帖子列表**：卡片式布局，每张卡片展示一篇帖子的摘要信息。
-* **侧边栏**：功能按钮和搜索栏，方便用户快速找到感兴趣的帖子。
+## First Sprint Review
+**What Went Well**:
+- The initial UI framework has been set up successfully. This is a significant achievement as it lays the foundation for further frontend and backend integration.
+- Despite the challenges, the team was able to reorganize the project plan and make considerable progress by adjusting the roadmap and strategies accordingly.
 
-#### 3. 事件预订界面
+**Challenges**:
+- The initial project plan and roadmap were not perfect. We underestimated the complexity and the time required to complete certain tasks.
+- We did not fully account for the learning curve associated with our technology stack, which led to delays. There was also a lack of consideration in the choice of the technology stack.
+- There was no comprehensive 'from scratch' plan for building the entire project architecture, which hindered systematic progress in the early stages.
 
-用于处理用户的活动预订请求，界面设计简化操作流程。
+**Actions for Next Sprint**:
+- We will focus on completing the backend setup based on the groundwork laid by the frontend framework established in this sprint.
+- Improve overall project test coverage, especially for the backend to ensure stability and functionality.
+- Re-evaluate and possibly enhance the choice of technology stack to better suit our project needs and to reduce the learning curve.
+- Develop a more robust project management strategy that includes a clear, detailed roadmap and contingency plans to handle unexpected challenges.
 
-**功能组成**：
+This revised approach will help streamline our efforts and ensure that we meet our project milestones more efficiently. The lessons learned from this sprint are invaluable and will guide our strategies moving forward.
 
-* **活动列表**：清晰展示所有可预订的活动。
-* **预订表单**：直观的表单输入，使用Vue 3的响应式表单处理。
+### Demo and Deliverables
 
-#### 4. 用户个人资料页面
+- **Current Implementation**:
+![[Pasted image 20240415161601.png|500]]
+![[Pasted image 20240415161631.png|500]]
+![[Pasted image 20240415161646.png|500]]
+![[Pasted image 20240415161700.png|500]]
 
-允许用户查看和编辑个人资料，采用分区域的布局提高信息可读性。
+ functionalities such as user login, event booking, and profile management will be shown.
+  - These features represent the core deliverables for this sprint.
 
-**功能组成**：
+### Team Contributions
 
-* **个人信息区**：直接编辑个人资料如姓名、邮箱。
-* **安全设置区**：修改密码和其他安全设置。
+- **Member Contributions**:
+ Yukun Yang: Four pages of Frontend & Report
+ Honglie Li: Backend Skeleton & Report
+ Zhelin Chu: Two pages of Frontend
+ Hanting Li: Two pages of Frontend
+ Jiaxuan Li: Two pages of Frontend
+ 
 
-## AI Usage Annotations
-
-### 1
-
-```bash
-.
-├── apps
-│   ├── community
-│   ├── events
-│   ├── infodisplay
-│   ├── recommendations
-│   └── reminders
-├── core
-├── db
-├── main.py
-└── utils
-这是一个fastapi后端的架构，解释一下
-```
-
-### 2
-
-```bash
-.
-├── App.vue
-├── assets
-│   └── logo.png
-├── components
-│   ├── CommunityPage.vue
-│   ├── EventBooking.vue
-│   ├── EventsPage.vue
-│   ├── Footer.vue
-│   ├── InfoDisplay.vue
-│   ├── Navbar.vue
-│   ├── Recommendations.vue
-│   ├── Reminders.vue
-│   └── UserProfile.vue
-└── main.js
-讲解一下vue前端架构
-```
-
-‍
+- Contributions are based on individual tasks and responsibilities, ensuring that all members are acknowledged for their specific roles.
