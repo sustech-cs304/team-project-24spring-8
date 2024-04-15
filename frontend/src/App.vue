@@ -11,11 +11,13 @@
       <RecommendationsList />
     </div>
     <h1>{{ message }}</h1>
+   
     <div class="button-container">
       <button @click="fetchMessage" class="action-button">Fetch Message</button>
       <button @click="goToReminders" class="action-button">查看提醒</button>
       <button @click="goToUserProfile" class="action-button">用户配置</button>
       <button @click="goToPostList" class="action-button">帖子列表</button>
+      <button @click="goToRecommendationsList">个性化推荐</button>
     </div>
     <router-view></router-view>
   </div>
@@ -47,9 +49,11 @@ export default {
     goToUserProfile() {
       this.$router.push({ name: 'UserProfile' });
     },
+    goToRecommendationsList() {
+      this.$router.push({ name: 'RecommendationsList' });
+    },
     goToPostList() {
       this.$router.push({ name: 'PostList' });
-    }
   },
 };
 </script>
