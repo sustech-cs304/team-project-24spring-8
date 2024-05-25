@@ -18,6 +18,8 @@
       <button @click="goToUserProfile" class="action-button">用户配置</button>
       <button @click="goToPostList" class="action-button">帖子列表</button>
       <button @click="goToRecommendationsList">个性化推荐</button>
+      <button @click="goToEventsPage">活动</button>
+      <button @click="goToEventBooking">活动预订</button>
     </div>
     <router-view></router-view>
   </div>
@@ -49,12 +51,19 @@ export default {
     goToUserProfile() {
       this.$router.push({ name: 'UserProfile' });
     },
+    goToEventsPage() {
+      this.$router.push({ name: 'EventsPage' });
+    },
+    goToEventBooking() {
+      this.$router.push({ name: 'EventBooking' });
+    },
     goToRecommendationsList() {
       this.$router.push({ name: 'RecommendationsList' });
     },
     goToPostList() {
       this.$router.push({ name: 'PostList' });
-  },
+    }
+  }
 };
 </script>
 

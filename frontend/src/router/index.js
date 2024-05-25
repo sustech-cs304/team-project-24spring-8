@@ -4,6 +4,8 @@ import UserProfile from '../components/UserProfile.vue';
 import RecommendationsList from '../components/RecommendationsList.vue';
 import PostList from '../components/PostList.vue';
 import PostDetails from '../components/PostDetails.vue';
+import EventsPage from '../components/EventsPage.vue';
+import EventBooking from '../components/EventBooking.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -23,6 +25,18 @@ const router = createRouter({
             name: 'RecommendationsList',
             component: RecommendationsList
         },
+        {
+
+            path: '/eventspage',
+            name: 'EventsPage',
+            component: EventsPage
+        },
+        {
+            path: '/eventbooking',
+            name: 'EventBooking',
+            component: EventBooking
+         },
+        {
             path: '/posts',
             name: 'PostList',
             component: PostList
