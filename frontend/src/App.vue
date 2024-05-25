@@ -22,10 +22,19 @@
       <button @click="goToEventBooking" class="action-button">活动预订</button>
       <button @click="fetchFirstUsername" class="action-button">获取第一个用户的用户名</button>
     </div>
-    <p v-if="username">第一个用户的用户名: {{ username }}</p>
+    
+    <!-- 模态框 -->
+    <div v-if="showModal" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="closeModal">&times;</span>
+        <p>第一个用户的用户名: {{ username }}</p>
+      </div>
+    </div>
+
     <router-view></router-view>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -37,13 +46,14 @@ export default {
     return {
       currentComponent: 'home',
       message: '',
-      username: ''
+      username: '',
+      showModal: false  // 控制模态框的显示
     };
   },
   methods: {
     async fetchMessage() {
       try {
-        const response = await axios.get('http://localhost:8002/hello');
+        const response = await axios.get('http://localhost:8001/hello');
         this.message = response.data.message;
       } catch (error) {
         console.error(error);
@@ -51,12 +61,15 @@ export default {
     },
     async fetchFirstUsername() {
       try {
-        const response = await axios.get('http://localhost:8002/users/user1');
+        const response = await axios.get('http://localhost:8001/users/1');
         this.username = response.data.username;
-        console.messages(this.username);
+        this.showModal = true;  // 显示模态框
       } catch (error) {
         console.error(error);
       }
+    },
+    closeModal() {
+      this.showModal = false;  // 关闭模态框
     },
     goToReminders() {
       this.$router.push({ name: 'ActivityReminders' });
@@ -79,6 +92,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .app-container {
@@ -115,5 +129,34 @@ h1 {
 p {
   color: #fff;
   margin-top: 20px;
+}
+
+/* 模态框样式 */
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #101010;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
+  color: #000;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
 }
 </style>
