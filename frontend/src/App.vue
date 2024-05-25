@@ -11,16 +11,18 @@
       <RecommendationsList />
     </div>
     <h1>{{ message }}</h1>
-   
+
     <div class="button-container">
       <button @click="fetchMessage" class="action-button">Fetch Message</button>
       <button @click="goToReminders" class="action-button">查看提醒</button>
       <button @click="goToUserProfile" class="action-button">用户配置</button>
       <button @click="goToPostList" class="action-button">帖子列表</button>
-      <button @click="goToRecommendationsList">个性化推荐</button>
-      <button @click="goToEventsPage">活动</button>
-      <button @click="goToEventBooking">活动预订</button>
+      <button @click="goToRecommendationsList" class="action-button">个性化推荐</button>
+      <button @click="goToEventsPage" class="action-button">活动</button>
+      <button @click="goToEventBooking" class="action-button">活动预订</button>
+      <button @click="fetchFirstUsername" class="action-button">获取第一个用户的用户名</button>
     </div>
+    <p v-if="username">第一个用户的用户名: {{ username }}</p>
     <router-view></router-view>
   </div>
 </template>
@@ -33,14 +35,25 @@ export default {
   router,
   data() {
     return {
-      currentComponent: 'home'
+      currentComponent: 'home',
+      message: '',
+      username: ''
     };
   },
   methods: {
     async fetchMessage() {
       try {
-        const response = await axios.get('http://localhost:8000/hello');
+        const response = await axios.get('http://localhost:8002/hello');
         this.message = response.data.message;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async fetchFirstUsername() {
+      try {
+        const response = await axios.get('http://localhost:8002/users/user1');
+        this.username = response.data.username;
+        console.messages(this.username);
       } catch (error) {
         console.error(error);
       }
@@ -97,5 +110,10 @@ h1 {
 
 .action-button:hover {
   background-color: #B48B9E;
+}
+
+p {
+  color: #fff;
+  margin-top: 20px;
 }
 </style>
