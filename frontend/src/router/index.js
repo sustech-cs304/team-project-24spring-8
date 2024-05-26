@@ -6,10 +6,22 @@ import PostList from '../components/PostList.vue';
 import PostDetails from '../components/PostDetails.vue';
 import EventsPage from '../components/EventsPage.vue';
 import EventBooking from '../components/EventBooking.vue';
+import LoginPage from '../components/LoginPage.vue';  // 导入重命名后的登录组件
+import HomePage from '../components/HomePage.vue';    // 导入重命名后的主界面组件
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+        {
+            path: '/',
+            name: 'LoginPage',
+            component: LoginPage
+        },
+        {
+            path: '/home',
+            name: 'HomePage',
+            component: HomePage
+        },
         {
             path: '/reminders',
             name: 'ActivityReminders',
@@ -26,7 +38,6 @@ const router = createRouter({
             component: RecommendationsList
         },
         {
-
             path: '/eventspage',
             name: 'EventsPage',
             component: EventsPage
@@ -35,7 +46,7 @@ const router = createRouter({
             path: '/eventbooking',
             name: 'EventBooking',
             component: EventBooking
-         },
+        },
         {
             path: '/posts',
             name: 'PostList',

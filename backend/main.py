@@ -84,6 +84,10 @@ class UserRead(BaseModel):
     email: str
     full_name: str
 
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
 @app.on_event("startup")
 def startup_event():
     # 启动时添加测试数据
@@ -110,7 +114,6 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
-
 @app.put("/users/{user_id}", response_model=UserRead)
 def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.id == user_id).first()
@@ -132,3 +135,10 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.delete(db_user)
     db.commit()
     return {"message": "User deleted"}
+
+@app.post("/login")
+def login(user: UserLogin, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.username == user.username).first()
+    if db_user is None or db_user.hashed_password != user.password:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    return {"message": "Login successful"}
