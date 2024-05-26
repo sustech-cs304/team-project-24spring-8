@@ -99,9 +99,9 @@ def get_current_user_id(token: str = Depends(oauth2_scheme)):
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid user ID")
         return user_id
-    
     except JWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")
+
 
 
 @app.post("/token", response_model=dict)
@@ -189,6 +189,8 @@ def update_password(user_id: int, password_update: PasswordUpdate, db: Session =
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     db_user.hashed_password = password_update.password
+    print(db_user.hashed_password)
+    print(password_update.password)
     db.commit()
     db.refresh(db_user)
     return db_user
@@ -214,4 +216,15 @@ def create_post(post: PostCreate, db: Session = Depends(get_db), user_id: int = 
 def read_posts(db: Session = Depends(get_db)):
     posts = db.query(Post).all()
     return posts
+
+@app.get("/posts/{post_id}", response_model=PostRead)
+def read_post(post_id: int, db: Session = Depends(get_db)):
+    print(f"Fetching post with ID: {post_id}")  # Log the ID being requested
+    db_post = db.query(Post).filter(Post.id == post_id).first()
+    if db_post:
+        print(f"Post found: {db_post.title}")  # Log details of the found post
+    else:
+        print("Post not found")  # Log if the post is not found
+        raise HTTPException(status_code=404, detail="Post not found")
+    return db_post
 
