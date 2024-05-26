@@ -21,6 +21,7 @@
       <button @click="goToEventsPage" class="action-button">活动</button>
       <button @click="goToEventBooking" class="action-button">活动预订</button>
       <button @click="fetchFirstUsername" class="action-button">获取第一个用户的用户名</button>
+      <button @click="logout" class="action-button">退出登录</button>
     </div>
     
     <!-- 模态框 -->
@@ -30,6 +31,8 @@
         <p>第一个用户的用户名: {{ username }}</p>
       </div>
     </div>
+
+    <router-link class="username-display" :to="{ name: 'UserDetail' }">当前用户: {{ currentUsername }}</router-link>
 
     <router-view></router-view>
   </div>
@@ -47,7 +50,8 @@ export default {
       currentComponent: 'home',
       message: '',
       username: '',
-      showModal: false  // 控制模态框的显示
+      showModal: false,  // 控制模态框的显示
+      currentUsername: localStorage.getItem('username') // 获取存储的用户名
     };
   },
   methods: {
@@ -88,6 +92,12 @@ export default {
     },
     goToPostList() {
       this.$router.push({ name: 'PostList' });
+    },
+    logout() {
+      localStorage.removeItem('access_token'); // 移除令牌
+      localStorage.removeItem('username'); // 移除用户名
+      delete axios.defaults.headers.common['Authorization']; // 删除默认头部
+      this.$router.push({ name: 'LoginPage' }); // 跳转到登录页面
     }
   }
 };
@@ -99,6 +109,7 @@ export default {
   padding: 20px;
   background: linear-gradient(135deg, #957DAD, #D291BC);
   color: white;
+  position: relative; /* 确保用户名显示在右上角 */
 }
 
 h1 {
@@ -157,5 +168,20 @@ p {
   right: 10px;
   font-size: 24px;
   cursor: pointer;
+}
+
+/* 当前用户名显示样式 */
+.username-display {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 18px;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.username-display:hover {
+  text-decoration: underline;
 }
 </style>

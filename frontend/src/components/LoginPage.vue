@@ -38,8 +38,10 @@ export default {
 
       try {
         const response = await axios.post('http://localhost:8001/token', formData);
-        const accessToken = response.data.access_token;
-        localStorage.setItem('access_token', accessToken); // Store the access token in local storage
+        const { access_token, user_id } = response.data;
+        localStorage.setItem('access_token', access_token); // Store the access token in local storage
+        localStorage.setItem('username', this.username); // Store the username in local storage
+        localStorage.setItem('user_id', user_id); // Store the user id in local storage
         this.$router.push({ name: 'HomePage' }); // Redirect to home page
       } catch (error) {
         this.error = error.response && error.response.data ? error.response.data.detail : '登录失败，请重试';

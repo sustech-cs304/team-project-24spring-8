@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import LoginPage from '../components/LoginPage.vue';
+import HomePage from '../components/HomePage.vue';
 import ActivityReminders from '../components/ActivityReminders.vue';
 import UserProfile from '../components/UserProfile.vue';
 import RecommendationsList from '../components/RecommendationsList.vue';
@@ -6,83 +8,78 @@ import PostList from '../components/PostList.vue';
 import PostDetails from '../components/PostDetails.vue';
 import EventsPage from '../components/EventsPage.vue';
 import EventBooking from '../components/EventBooking.vue';
-import LoginPage from '../components/LoginPage.vue';  // 导入重命名后的登录组件
-import HomePage from '../components/HomePage.vue';    // 导入重命名后的主界面组件
+import UserDetail from '../components/UserDetail.vue';
 
-
+const routes = [
+  {
+    path: '/',
+    name: 'LoginPage',
+    component: LoginPage
+  },
+  {
+    path: '/home',
+    name: 'HomePage',
+    component: HomePage
+  },
+  {
+    path: '/reminders',
+    name: 'ActivityReminders',
+    component: ActivityReminders
+  },
+  {
+    path: '/user-profile',
+    name: 'UserProfile',
+    component: UserProfile
+  },
+  {
+    path: '/recommendations',
+    name: 'RecommendationsList',
+    component: RecommendationsList
+  },
+  {
+    path: '/eventspage',
+    name: 'EventsPage',
+    component: EventsPage
+  },
+  {
+    path: '/eventbooking',
+    name: 'EventBooking',
+    component: EventBooking
+  },
+  {
+    path: '/posts',
+    name: 'PostList',
+    component: PostList
+  },
+  {
+    path: '/posts/:postId',
+    name: 'PostDetails',
+    component: PostDetails,
+    props: true
+  },
+  {
+    path: '/user-detail',
+    name: 'UserDetail',
+    component: UserDetail
+  }
+];
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes: [
-        {
-            path: '/',
-            name: 'LoginPage',
-            component: LoginPage
-        },
-        {
-            path: '/home',
-            name: 'HomePage',
-            component: HomePage,
-            meta: { requiresAuth: true } // 标记需要认证
-        },
-        {
-            path: '/reminders',
-            name: 'ActivityReminders',
-            component: ActivityReminders,
-            meta: { requiresAuth: true } // 标记需要认证
-        },
-        {
-            path: '/user-profile',
-            name: 'UserProfile',
-            component: UserProfile,
-            meta: { requiresAuth: true } // 标记需要认证
-        },
-        {
-            path: '/recommendations',
-            name: 'RecommendationsList',
-            component: RecommendationsList,
-            meta: { requiresAuth: true } // 标记需要认证
-        },
-        {
-            path: '/eventspage',
-            name: 'EventsPage',
-            component: EventsPage,
-            meta: { requiresAuth: true } // 标记需要认证
-        },
-        {
-            path: '/eventbooking',
-            name: 'EventBooking',
-            component: EventBooking,
-            meta: { requiresAuth: true } // 标记需要认证
-        },
-        {
-            path: '/posts',
-            name: 'PostList',
-            component: PostList,
-            meta: { requiresAuth: true } // 标记需要认证
-        },
-        {
-            path: '/posts/:postId',
-            name: 'PostDetails',
-            component: PostDetails,
-            props: true,
-            meta: { requiresAuth: true } // 标记需要认证
-        }
-    ]
+  history: createWebHistory(),
+  routes
 });
 
-// 添加全局前置守卫
-// src/router/index.js
+// 导航守卫
 router.beforeEach((to, from, next) => {
-    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    const isAuthenticated = localStorage.getItem('access_token');
-  
-    if (requiresAuth && !isAuthenticated) {
-      next({ name: 'LoginPage' });
-    } else {
-      next();
-    }
-  });
-  
+  const publicPages = ['/'];
+  const authRequired = !publicPages.includes(to.path);
+  const loggedIn = localStorage.getItem('access_token');
+
+  if (authRequired && !loggedIn) {
+    return next('/');
+  }
+
+  next();
+});
 
 export default router;
