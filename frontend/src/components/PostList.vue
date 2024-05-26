@@ -6,19 +6,38 @@
         <router-link :to="{ name: 'PostDetails', params: { postId: post.id.toString() }}" class="post-link">{{ post.title }}</router-link>
       </li>
     </ul>
+    <div v-if="loading" class="loading">加载中...</div>
+    <div v-if="error" class="error">{{ error }}</div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
-      posts: [
-        { id: 1, title: '探讨最近的机器学习讲座' },
-        { id: 2, title: '人工智能与未来社会的讲座回顾' },
-        { id: 3, title: '大数据技术的前景和挑战' }
-      ]
+      posts: [],
+      loading: false,
+      error: null
     };
+  },
+  created() {
+    this.fetchPosts();
+  },
+  methods: {
+    async fetchPosts() {
+      this.loading = true;
+      try {
+        // 替换'/api/posts'为你的后端实际API路径
+        const response = await axios.get('http://localhost:8001/posts');
+        this.posts = response.data;
+      } catch (error) {
+        this.error = '无法加载帖子。' + error.message;
+      } finally {
+        this.loading = false;
+      }
+    }
   }
 }
 </script>
@@ -28,15 +47,15 @@ export default {
   max-width: 800px;
   margin: 20px auto;
   padding: 20px;
-  background: linear-gradient(135deg, #957DAD, #D291BC); /* Updated background to a purple gradient */
+  background: linear-gradient(135deg, #957DAD, #D291BC);
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .post-list h1 {
-  color: #6A0DAD; /* Deep purple color for the heading */
+  color: #6A0DAD;
   text-align: center;
-  margin-bottom: 20px; /* Added margin for better spacing */
+  margin-bottom: 20px;
 }
 
 .post-list ul {
@@ -61,18 +80,24 @@ export default {
 
 .post-link {
   text-decoration: none;
-  color: #5E2D79; /* A lighter shade of purple for links to make them stand out */
+  color: #5E2D79;
   font-size: 18px;
   display: block;
   transition: color 0.3s ease;
 }
 
 .post-link:hover {
-  color: #9A4DCE; /* A lighter, more vivid purple for hover */
+  color: #9A4DCE;
   text-decoration: underline;
 }
 
 .post-item:hover {
-  background-color: #f4eaff; /* A very light purple background on hover for list items */
+  background-color: #f4eaff;
+}
+
+.loading, .error {
+  text-align: center;
+  margin-top: 20px;
+  color: #FF6347; /* Tomato color for error or loading messages */
 }
 </style>

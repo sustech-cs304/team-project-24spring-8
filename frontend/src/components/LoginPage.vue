@@ -5,11 +5,11 @@
       <form @submit.prevent="login">
         <div class="mb-3">
           <label for="username" class="form-label">用户名:</label>
-          <input type="text" v-model="username" class="form-control" required />
+          <input type="text" id="username" v-model="username" class="form-control" required />
         </div>
         <div class="mb-3">
           <label for="password" class="form-label">密码:</label>
-          <input type="password" v-model="password" class="form-control" required />
+          <input type="password" id="password" v-model="password" class="form-control" required />
         </div>
         <button type="submit" class="btn btn-primary w-100">登录</button>
       </form>
@@ -32,16 +32,17 @@ export default {
   },
   methods: {
     async login() {
+      const formData = new URLSearchParams();
+      formData.append('username', this.username);
+      formData.append('password', this.password);
+
       try {
-        const response = await axios.post('http://localhost:8001/login', {
-          username: this.username,
-          password: this.password
-        });
-        if (response.data.message === 'Login successful') {
-          this.$router.push({ name: 'HomePage' });
-        }
+        const response = await axios.post('http://localhost:8001/token', formData);
+        const accessToken = response.data.access_token;
+        localStorage.setItem('access_token', accessToken); // Store the access token in local storage
+        this.$router.push({ name: 'HomePage' }); // Redirect to home page
       } catch (error) {
-        this.error = '用户名或密码错误';
+        this.error = error.response && error.response.data ? error.response.data.detail : '登录失败，请重试';
       }
     }
   }
