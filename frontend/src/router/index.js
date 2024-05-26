@@ -8,7 +8,7 @@ import EventsPage from '../components/EventsPage.vue';
 import EventBooking from '../components/EventBooking.vue';
 import LoginPage from '../components/LoginPage.vue';  // 导入重命名后的登录组件
 import HomePage from '../components/HomePage.vue';    // 导入重命名后的主界面组件
-
+import UserDetail from '../components/UserDetail.vue';
 
 
 const router = createRouter({
@@ -84,21 +84,28 @@ const router = createRouter({
             path: '/reminders',
             name: 'ActivityReminders',
             component: ActivityReminders
+        },
+        {
+            path: '/user-detail',
+            name: 'UserDetail',
+            component: UserDetail
         }
     ]
 });
 
 // 添加全局前置守卫
 // src/router/index.js
+// 导航守卫
 router.beforeEach((to, from, next) => {
-    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-    const isAuthenticated = localStorage.getItem('access_token');
+    const publicPages = ['/'];
+    const authRequired = !publicPages.includes(to.path);
+    const loggedIn = localStorage.getItem('access_token');
   
-    if (requiresAuth && !isAuthenticated) {
-      next({ name: 'LoginPage' });
-    } else {
-      next();
+    if (authRequired && !loggedIn) {
+      return next('/');
     }
+  
+    next();
   });
   
 
