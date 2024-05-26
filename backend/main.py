@@ -9,7 +9,6 @@ from jose import jwt, JWTError
 from typing import List
 from datetime import datetime, timedelta
 
-
 DATABASE_URL = "sqlite:///./test.db"
 SECRET_KEY = "YOUR_SECRET_KEY"
 ALGORITHM = "HS256"
@@ -76,6 +75,9 @@ class PostRead(BaseModel):
     content: str
     owner_id: int
 
+class PasswordUpdate(BaseModel):
+    password: str
+
 def get_db():
     db = SessionLocal()
     try:
@@ -93,12 +95,14 @@ def create_access_token(data: dict):
 def get_current_user_id(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: int = payload.get("sub")
+        user_id: int = int(payload.get("sub"))
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid user ID")
         return user_id
+    
     except JWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")
+
 
 @app.post("/token", response_model=dict)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -110,7 +114,8 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data={"sub": str(user.id)})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
+
 
 @app.on_event("startup")
 def startup_event():
@@ -172,6 +177,22 @@ def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
+@app.put("/users/{user_id}/password", response_model=UserRead)
+def update_password(user_id: int, password_update: PasswordUpdate, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user_id)):
+    
+    print(type(user_id))
+    print(type(current_user_id))
+    print(user_id != current_user_id)
+    if user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="Operation not permitted")
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    db_user.hashed_password = password_update.password
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 @app.delete("/users/{user_id}", response_model=dict)
 def delete_user(user_id: int, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.id == user_id).first()
@@ -193,3 +214,4 @@ def create_post(post: PostCreate, db: Session = Depends(get_db), user_id: int = 
 def read_posts(db: Session = Depends(get_db)):
     posts = db.query(Post).all()
     return posts
+
