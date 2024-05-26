@@ -1,77 +1,55 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, relationship
 from pydantic import BaseModel
+from jose import jwt, JWTError
+from typing import List
+from datetime import datetime, timedelta
+
 
 DATABASE_URL = "sqlite:///./test.db"
+SECRET_KEY = "YOUR_SECRET_KEY"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # 创建数据库引擎
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-
-# 创建会话
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# 创建基础模型类
 Base = declarative_base()
 
-# 定义用户模型
 class User(Base):
     __tablename__ = "users"
-
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     full_name = Column(String)
     hashed_password = Column(String)
+    posts = relationship("Post", back_populates="owner")
 
-# 定义其他模型（例如Item模型）
-class Item(Base):
-    __tablename__ = "items"
-
+class Post(Base):
+    __tablename__ = "posts"
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    description = Column(String, index=True)
+    title = Column(String, index=True)
+    content = Column(String, index=True)
+    owner_id = Column(Integer, ForeignKey('users.id'))
+    owner = relationship("User", back_populates="posts")
 
-# 创建数据库表
 Base.metadata.create_all(bind=engine)
 
-# 添加测试数据
-def add_test_data(db: Session):
-    test_users = [
-        {"username": "user1", "email": "user1@example.com", "full_name": "User One", "hashed_password": "hashedpassword1"},
-        {"username": "user2", "email": "user2@example.com", "full_name": "User Two", "hashed_password": "hashedpassword2"},
-        {"username": "user3", "email": "user3@example.com", "full_name": "User Three", "hashed_password": "hashedpassword3"}
-    ]
-    for user_data in test_users:
-        user = db.query(User).filter(User.username == user_data['username']).first()
-        if not user:
-            db_user = User(**user_data)
-            db.add(db_user)
-    db.commit()
-
-# 创建 FastAPI 应用
 app = FastAPI()
-
-# CORS 配置
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 允许所有源
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # 允许所有方法
-    allow_headers=["*"],  # 允许所有头
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
-# 依赖项，用于获取数据库会话
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# Pydantic 模型
 class UserCreate(BaseModel):
     username: str
     email: str
@@ -88,16 +66,83 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
+class PostCreate(BaseModel):
+    title: str
+    content: str
+
+class PostRead(BaseModel):
+    id: int
+    title: str
+    content: str
+    owner_id: int
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+def get_current_user_id(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid user ID")
+        return user_id
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
+
+@app.post("/token", response_model=dict)
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == form_data.username).first()
+    if not user or user.hashed_password != form_data.password:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = create_access_token(data={"sub": str(user.id)})
+    return {"access_token": access_token, "token_type": "bearer"}
+
 @app.on_event("startup")
 def startup_event():
-    # 启动时添加测试数据
     db = SessionLocal()
-    add_test_data(db)
+    # Adding users
+    test_users = [
+        {"username": "user1", "email": "user1@example.com", "full_name": "User One", "hashed_password": "hashedpassword1"},
+        {"username": "user2", "email": "user2@example.com", "full_name": "User Two", "hashed_password": "hashedpassword2"},
+        {"username": "user3", "email": "user3@example.com", "full_name": "User Three", "hashed_password": "hashedpassword3"}
+    ]
+    for user_data in test_users:
+        user = db.query(User).filter(User.username == user_data['username']).first()
+        if not user:
+            db_user = User(**user_data)
+            db.add(db_user)
+    db.commit()
+    
+    # Assuming user1 exists, let's add some posts for user1
+    user1 = db.query(User).filter(User.username == "user1").first()
+    if user1:
+        test_posts = [
+            {"title": "探讨最近的机器学习讲座", "content": "非常有见地的讲座，有很多启发性的内容。", "owner_id": user1.id},
+            {"title": "人工智能与未来社会的讲座回顾", "content": "详细回顾了AI的发展历史及其对未来社会的影响。", "owner_id": user1.id},
+            {"title": "大数据技术的前景和挑战", "content": "探讨了大数据技术面临的主要挑战及其解决方案。", "owner_id": user1.id}
+        ]
+        for post_data in test_posts:
+            post = db.query(Post).filter(Post.title == post_data['title']).first()
+            if not post:
+                db_post = Post(**post_data)
+                db.add(db_post)
+        db.commit()
     db.close()
-
-@app.get("/hello")
-def read_hello():
-    return {"message": "Hello from FastAPI"}
 
 @app.post("/users/", response_model=UserRead)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -136,9 +181,15 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "User deleted"}
 
-@app.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.username == user.username).first()
-    if db_user is None or db_user.hashed_password != user.password:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
-    return {"message": "Login successful"}
+@app.post("/posts/", response_model=PostRead)
+def create_post(post: PostCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    db_post = Post(title=post.title, content=post.content, owner_id=user_id)
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
+    return db_post
+
+@app.get("/posts/", response_model=List[PostRead])
+def read_posts(db: Session = Depends(get_db)):
+    posts = db.query(Post).all()
+    return posts
