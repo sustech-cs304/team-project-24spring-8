@@ -1,6 +1,20 @@
 <template>
   <div class="post-list">
     <h1>南科大计算机系讲座讨论</h1>
+
+    <!-- 发帖表单 -->
+    <form @submit.prevent="submitPost">
+      <div>
+        <label for="postTitle">标题:</label>
+        <input id="postTitle" v-model="newPost.title" type="text" required>
+      </div>
+      <div>
+        <label for="postContent">内容:</label>
+        <textarea id="postContent" v-model="newPost.content" required></textarea>
+      </div>
+      <button type="submit" class="submit-button">发帖</button>
+    </form>
+
     <ul>
       <li v-for="post in posts" :key="post.id" class="post-item">
         <router-link :to="{ name: 'PostDetails', params: { postId: post.id.toString() }}" class="post-link">{{ post.title }}</router-link>
@@ -11,6 +25,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 
@@ -18,6 +33,10 @@ export default {
   data() {
     return {
       posts: [],
+      newPost: {
+        title: '',
+        content: ''
+      },
       loading: false,
       error: null
     };
@@ -29,7 +48,6 @@ export default {
     async fetchPosts() {
       this.loading = true;
       try {
-        // 替换'/api/posts'为你的后端实际API路径
         const response = await axios.get('http://localhost:8001/posts');
         this.posts = response.data;
       } catch (error) {
@@ -37,10 +55,25 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    async submitPost() {
+      if (!this.newPost.title || !this.newPost.content) {
+        alert('标题和内容不能为空！');
+        return;
+      }
+      try {
+        const response = await axios.post('http://localhost:8001/posts', this.newPost);
+        this.posts.push(response.data); // 假设后端返回新创建的帖子
+        this.newPost.title = '';
+        this.newPost.content = '';
+      } catch (error) {
+        this.error = '发帖失败。' + error.message;
+      }
     }
   }
 }
 </script>
+
 
 <style scoped>
 .post-list {
@@ -99,5 +132,30 @@ export default {
   text-align: center;
   margin-top: 20px;
   color: #FF6347; /* Tomato color for error or loading messages */
+}
+/* 表单样式 */
+label {
+  display: block;
+  margin: 10px 0 5px;
+}
+
+input[type="text"], textarea {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.submit-button {
+  padding: 10px 15px;
+  background-color: #6A0DAD;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #B48B9E;
 }
 </style>
