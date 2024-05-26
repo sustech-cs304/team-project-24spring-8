@@ -57,19 +57,31 @@ export default {
       }
     },
     async submitPost() {
-      if (!this.newPost.title || !this.newPost.content) {
-        alert('标题和内容不能为空！');
-        return;
-      }
-      try {
-        const response = await axios.post('http://localhost:8001/posts', this.newPost);
-        this.posts.push(response.data); // 假设后端返回新创建的帖子
-        this.newPost.title = '';
-        this.newPost.content = '';
-      } catch (error) {
-        this.error = '发帖失败。' + error.message;
-      }
+    if (!this.newPost.title || !this.newPost.content) {
+      alert('标题和内容不能为空！');
+      return;
     }
+    try {
+      const token = localStorage.getItem('access_token');  // 确保Token被正确获取
+      if (!token) {
+        this.error = '未授权：无Token';
+        return;  // 如果没有Token，不发送请求
+      }
+      const response = await axios.post('http://localhost:8001/posts', {
+        title: this.newPost.title,
+        content: this.newPost.content
+      }, {
+        headers: { 'Authorization': `Bearer ${token}` }  // 确保Token正确添加到请求头
+      });
+      this.posts.push(response.data);
+      this.newPost.title = '';
+      this.newPost.content = '';
+    } catch (error) {
+      this.error = '发帖失败。' + error.response.data.detail;  // 显示从后端获取的错误信息
+    }
+  }
+
+
   }
 }
 </script>

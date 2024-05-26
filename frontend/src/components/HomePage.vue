@@ -32,8 +32,6 @@
       </div>
     </div>
 
-    <router-link class="username-display" :to="{ name: 'UserDetail' }">当前用户: {{ currentUsername }}</router-link>
-
     <router-view></router-view>
   </div>
 </template>
