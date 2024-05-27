@@ -1,3 +1,11 @@
+<!--
+ * @Author: lerrorgk lerrorgk@163.com
+ * @Date: 2024-05-27 15:15:01
+ * @LastEditors: lerrorgk lerrorgk@163.com
+ * @LastEditTime: 2024-05-27 16:50:10
+ * @FilePath: \team-project-24spring-8\frontend\src\components\LoginPage.vue
+ * @Description: 
+-->
 <template>
   <div class="d-flex justify-content-center align-items-center vh-100 login-background">
     <div class="card p-4 login-box" style="width: 400px;">
@@ -28,7 +36,7 @@ export default {
       username: '',
       password: '',
       error: ''
-    }
+    };
   },
   methods: {
     async login() {
@@ -48,7 +56,7 @@ export default {
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>

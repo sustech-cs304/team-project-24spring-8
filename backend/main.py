@@ -27,6 +27,7 @@ class User(Base):
     full_name = Column(String)
     hashed_password = Column(String)
     posts = relationship("Post", back_populates="owner")
+    notifications = relationship("Notification", back_populates="owner")
 
 class Post(Base):
     __tablename__ = "posts"
@@ -35,6 +36,15 @@ class Post(Base):
     content = Column(String, index=True)
     owner_id = Column(Integer, ForeignKey('users.id'))
     owner = relationship("User", back_populates="posts")
+
+class Notification(Base):
+    __tablename__ = "notifications"
+    id = Column(Integer, primary_key=True, index=True)
+    message = Column(String)
+    created_at = Column(String)  # Ensure this line exists
+    sender = Column(String)
+    owner_id = Column(Integer, ForeignKey('users.id'))
+    owner = relationship("User", back_populates="notifications")
 
 Base.metadata.create_all(bind=engine)
 
@@ -78,6 +88,21 @@ class PostRead(BaseModel):
 class PasswordUpdate(BaseModel):
     password: str
 
+# 定义 Pydantic 模型
+class NotificationCreate(BaseModel):
+    message: str
+    sender: str
+
+class NotificationRead(BaseModel):
+    id: int
+    message: str
+    created_at: str
+    sender: str
+    owner_id: int
+
+    class Config:
+        orm_mode = True
+
 def get_db():
     db = SessionLocal()
     try:
@@ -107,12 +132,17 @@ def get_current_user_id(token: str = Depends(oauth2_scheme)):
 @app.post("/token", response_model=dict)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == form_data.username).first()
+    if user:
+        print(f"Stored username: {user.username}")
+        print(f"Stored password: {user.hashed_password}")
+    
     if not user or user.hashed_password != form_data.password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    
     access_token = create_access_token(data={"sub": str(user.id)})
     return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
 
@@ -146,6 +176,18 @@ def startup_event():
             if not post:
                 db_post = Post(**post_data)
                 db.add(db_post)
+        db.commit()
+        # 给user1填充Notification 表
+        notificationsList = [
+            {"message": "你有一个新的讨论回复", "created_at": "2023-04-01T12:00:00Z", "sender": "系统通知", "owner_id": user1.id},
+            {"message": "活动报名开始了", "created_at": "2023-04-02T12:00:00Z", "sender": "系统通知", "owner_id": user1.id},
+            {"message": "新的评论在你的帖子上", "created_at": "2023-04-03T12:00:00Z", "sender": "user2", "owner_id": user1.id}
+        ]
+        for notification_data in notificationsList:
+            notification = db.query(Notification).filter(Notification.message == notification_data['message']).first()
+            if not notification:
+                db_notification = Notification(**notification_data)
+                db.add(db_notification)
         db.commit()
     db.close()
 
@@ -228,3 +270,42 @@ def read_post(post_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Post not found")
     return db_post
 
+
+@app.post("/notifications/", response_model=NotificationRead)
+def create_notification(notification: NotificationCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    print(f"Creating notification for user_id: {user_id}, message: {notification.message}, sender: {notification.sender}")
+    db_notification = Notification(
+        message=notification.message,
+        sender=notification.sender,
+        owner_id=user_id,
+        created_at=datetime.utcnow().isoformat()
+    )
+    db.add(db_notification)
+    db.commit()
+    db.refresh(db_notification)
+    print(f"Notification created with ID: {db_notification.id}")
+    return db_notification
+
+class NotificationsResponse(BaseModel):
+    count: int
+    notifications: List[NotificationRead]
+
+@app.get("/notifications/", response_model=NotificationsResponse)  # 修改这里使用新的响应模型
+def read_notifications(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    print(f"Fetching notifications for user_id: {user_id}")
+    notifications = db.query(Notification).filter(Notification.owner_id == user_id).all()
+    print(f"Fetched {len(notifications)} notifications")
+    return NotificationsResponse(
+        count=len(notifications),
+        notifications=[NotificationRead.from_orm(notification) for notification in notifications]
+    )
+
+@app.get("/notifications/{notification_id}", response_model=NotificationRead)
+def read_notification(notification_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    print(f"Fetching notification with ID: {notification_id} for user_id: {user_id}")
+    db_notification = db.query(Notification).filter(Notification.id == notification_id, Notification.owner_id == user_id).first()
+    if db_notification is None:
+        print(f"Notification with ID: {notification_id} not found")
+        raise HTTPException(status_code=404, detail="Notification not found")
+    print(f"Notification with ID: {notification_id} found")
+    return NotificationRead.from_orm(db_notification)

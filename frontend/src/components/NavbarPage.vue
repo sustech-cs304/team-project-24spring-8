@@ -6,30 +6,55 @@
       <router-link to="/events" class="nav-link">Event</router-link>
     </div>
     <div>
-      <router-link to="/reminders" class="notification-bell">
+      <router-link to="/notifications" class="notification-bell">
         <span class="bell-icon">🔔</span>
         <span class="notification-count" v-if="notifications > 0">{{ notifications }}</span>
       </router-link>
-      <router-link to="user-detail" class="nav-link">
+      <router-link to="/user-detail" class="nav-link">
         <span class="username-display">当前用户: {{ username }}</span>
       </router-link>
     </div>
   </nav>
 </template>
 
-
-
-
-
-
 <script>
+import axios from 'axios';
+
 export default {
   name: 'NavbarPage',
   data() {
     return {
-      notifications: 3, // 假设有3个通知
-      username: localStorage.getItem('username') || '未登录' // 获取存储的用户名或显示默认值
+      notifications: 0, // 初始化通知数量为 0
+      username: localStorage.getItem('username') || '未登录', // 获取存储的用户名或显示默认值
+      intervalId: null // 用于存储定时器 ID
     };
+  },
+  created() {
+    this.fetchNotificationCount();
+    // 设置定时器每秒刷新一次
+    this.intervalId = setInterval(this.fetchNotificationCount, 10000);
+  },
+  beforeUnmount() {
+    // 清除定时器
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  },
+  methods: {
+    async fetchNotificationCount() {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
+        console.error('请先登录');
+        return;
+      }
+      try {
+        const response = await axios.get('http://localhost:8001/notifications/');
+        console.log(response.data); 
+        this.notifications = response.data.count; 
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      }
+    }
   }
 }
 </script>
@@ -81,5 +106,3 @@ export default {
   text-decoration: underline;
 }
 </style>
-
-
