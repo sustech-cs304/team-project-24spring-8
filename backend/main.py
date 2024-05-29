@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
 from pydantic import BaseModel
@@ -45,6 +45,19 @@ class Notification(Base):
     sender = Column(String)
     owner_id = Column(Integer, ForeignKey('users.id'))
     owner = relationship("User", back_populates="notifications")
+
+class Event(Base):
+    __tablename__ = "events"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    event_time = Column(DateTime)
+    description = Column(String)
+    duration_hours = Column(Integer)
+    duration_minutes = Column(Integer)
+    owner_id = Column(Integer, ForeignKey('users.id'))
+    owner = relationship("User", back_populates="events")
+
+User.events = relationship("Event", back_populates="owner")
 
 Base.metadata.create_all(bind=engine)
 
@@ -103,6 +116,30 @@ class NotificationRead(BaseModel):
     class Config:
         orm_mode = True
 
+class EventCreate(BaseModel):
+    name: str
+    event_time: datetime
+    description: str
+    duration_hours: int  # 新增字段
+    duration_minutes: int
+
+class EventRead(BaseModel):
+    id: int
+    name: str
+    event_time: datetime
+    description: str
+    duration_hours: int  # 新增字段
+    duration_minutes: int
+    owner_id: int
+
+    class Config:
+        orm_mode = True
+
+class TicketBooking(BaseModel): # 新增字段
+    event_id: int
+    user_id: int
+    tickets: int
+
 def get_db():
     db = SessionLocal()
     try:
@@ -135,14 +172,14 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     if user:
         print(f"Stored username: {user.username}")
         print(f"Stored password: {user.hashed_password}")
-    
+
     if not user or user.hashed_password != form_data.password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     access_token = create_access_token(data={"sub": str(user.id)})
     return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
 
@@ -162,7 +199,7 @@ def startup_event():
             db_user = User(**user_data)
             db.add(db_user)
     db.commit()
-    
+
     # Assuming user1 exists, let's add some posts for user1
     user1 = db.query(User).filter(User.username == "user1").first()
     if user1:
@@ -188,6 +225,22 @@ def startup_event():
             if not notification:
                 db_notification = Notification(**notification_data)
                 db.add(db_notification)
+        db.commit()
+
+        test_events = [
+            {"name": "机器学习会议", "event_time": datetime(2023, 6, 9, 10, 0), "description": "关于最新机器学习技术的讨论。",
+             "duration_hours": 2, "duration_minutes": 30, "owner_id": user1.id},
+            {"name": "人工智能研讨会", "event_time": datetime(2023, 6, 13, 14, 0), "description": "探讨AI在各行业的应用。",
+             "duration_hours": 3, "duration_minutes": 20, "owner_id": user1.id},
+            {"name": "大数据技术展望", "event_time": datetime(2023, 6, 8, 8, 0),
+             "description": "探讨大数据技术的发展方向。",
+             "duration_hours": 2, "duration_minutes": 10, "owner_id": user1.id}
+        ]
+        for event_data in test_events:
+            event = db.query(Event).filter(Event.name == event_data['name']).first()
+            if not event:
+                db_event = Event(**event_data)
+                db.add(db_event)
         db.commit()
     db.close()
 
@@ -219,9 +272,77 @@ def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
+@app.post("/events/", response_model=EventRead)
+def create_event(event: EventCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    if not isinstance(event.duration, int) or event.duration <= 0:
+        raise HTTPException(status_code=400, detail="Duration must be a positive integer")
+    db_event = Event(name=event.name, event_time=event.event_time, description=event.description,
+                     duration=event.duration, owner_id=user_id)
+    db.add(db_event)
+    db.commit()
+    db.refresh(db_event)
+    return db_event
+
+
+@app.get("/events/", response_model=List[EventRead])
+def read_events(skip: int = 0, limit: int = 10, search: str = None, db: Session = Depends(get_db)):
+    query = db.query(Event)
+    if search:
+        query = query.filter(Event.name.contains(search))
+    events = query.offset(skip).limit(limit).all()
+
+    for event in events:
+        print(
+            f"Event ID: {event.id}, Duration: {event.duration_hours} hours and {event.duration_minutes} minutes")  # 调试语句
+
+    return events
+
+
+@app.get("/events/{event_id}", response_model=EventRead)
+def read_event(event_id: int, db: Session = Depends(get_db)):
+    db_event = db.query(Event).filter(Event.id == event_id).first()
+    if db_event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return db_event
+
+@app.put("/events/{event_id}", response_model=EventRead)
+def update_event(event_id: int, event: EventCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    db_event = db.query(Event).filter(Event.id == event_id).first()
+    if db_event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    if db_event.owner_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this event")
+    db_event.name = event.name
+    db_event.event_time = event.event_time
+    db_event.description = event.description
+    db_event.duration = event.duration
+    db.commit()
+    db.refresh(db_event)
+    return db_event
+
+@app.delete("/events/{event_id}", response_model=dict)
+def delete_event(event_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    db_event = db.query(Event).filter(Event.id == event_id).first()
+    if db_event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    if db_event.owner_id != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this event")
+    db.delete(db_event)
+    db.commit()
+    return {"message": "Event deleted"}
+
+@app.post("/tickets/", status_code=status.HTTP_201_CREATED)
+def create_ticket(booking: TicketBooking, db: Session = Depends(get_db)):
+    # 这里可以添加逻辑以检查票务是否可用、处理支付等
+    # 简单示例：直接创建票务记录
+    ticket = Ticket(event_id=booking.event_id, user_id=booking.user_id, number=booking.tickets)
+    db.add(ticket)
+    db.commit()
+    return {"message": "Ticket booked successfully"}
+
 @app.put("/users/{user_id}/password", response_model=UserRead)
 def update_password(user_id: int, password_update: PasswordUpdate, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user_id)):
-    
+
     print(type(user_id))
     print(type(current_user_id))
     print(user_id != current_user_id)
