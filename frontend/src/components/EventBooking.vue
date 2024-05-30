@@ -1,7 +1,9 @@
 <template>
   <div class="eventbooking">
     <h2>购票</h2>
-    <form @submit.prevent="updatebookingData" class="eventbooking">
+    <p>剩余票数：{{ ticketsLeft }}</p>
+    <p>id：{{ eventID}}</p>
+    <form @submit.prevent="createTicket" class="eventbooking">
       <div class="form-group">
         <label for="name">姓名:</label>
         <input id="name" v-model="bookingData.name" placeholder="您的姓名" required>
@@ -24,56 +26,75 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
+      eventID: this.$route.params.eventID,
       bookingData: {
         name: '',
         IDcard: '',
         phonenumber: '',
         tickets: 1
         // ticketType: 'regular'
-      }
+      },
+      ticketsLeft: 0, // 添加用于存储剩余票数的数据属性
     };
   },
+  created() {
+    this.fetchTicketsLeft();
+  },
   methods: {
-    createTicketApi(ticketData) {
-      return fetch('http://127.0.0.1:8001/tickets/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(ticketData)
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      });
-    },
-    submitTicketForm() {
-      this.createTicketApi(this.bookingData)
-        .then(() => {
-          alert('购票成功！');
-          this.bookingData = { name: '', IDcard: '', phonenumber: '', tickets: 1};
+    fetchTicketsLeft() {
+      fetch(`http://127.0.0.1:8001/events/${this.eventID}/tickets_left`)
+        .then(response => response.json())
+        .then(data => {
+          this.ticketsLeft = data.tickets_left;
         })
-        .catch(error => {
-          alert('购票失败，请重试。');
-          console.error('购票错误:', error);
-        });
+        .catch(error => console.error('Failed to fetch tickets left:', error));
     },
-    updatebookingData() {
-      if (this.validateForm()) {
-        this.submitTicketForm();
-      } else {
-        alert('请填写所有必填项！');
+    async createTicket() {
+      if (!this.validateForm()) {  // 确保是调用方法，添加括号
+        alert('内容不能为空！');
+        return;
+      }
+      try {
+        const token = localStorage.getItem('access_token');  // 确保Token被正确获取
+        if (!token) {
+          this.error = '未授权：无Token';
+          return;  // 如果没有Token，不发送请求
+        }
+        const response = await axios.post(`http://127.0.0.1:8001/tickets/${this.eventID}`, {
+          name: this.bookingData.name,
+          IDcard: this.bookingData.IDcard,
+          phonenumber: this.bookingData.phonenumber,
+          number: this.bookingData.tickets  // 确保发送的字段名称与后端模型一致
+        }, {
+          headers: { 'Authorization': `Bearer ${token}` }  // 确保Token正确添加到请求头
+        });
+        if (response.data.message) {
+          alert(response.data.message);  // 显示后端返回的成功信息
+        }
+        this.resetBookingData();
+      } catch (error) {
+        this.error = '购票失败。' + (error.response && error.response.data.detail ? error.response.data.detail : error.message);  // 显示从后端获取的错误信息
       }
     },
+
+    // 重置预订数据的函数
+    resetBookingData() {
+      this.bookingData.name = '';
+      this.bookingData.IDcard = '';
+      this.bookingData.phonenumber = '';
+      this.bookingData.tickets = 1;
+    },
+
+    // 表单验证函数
     validateForm() {
-      // 简单的验证逻辑
+      // 简单的验证逻辑，确保所有字段都不为空
       return this.bookingData.name && this.bookingData.IDcard && this.bookingData.phonenumber && this.bookingData.tickets > 0;
     }
+
   }
 };
 </script>

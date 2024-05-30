@@ -89,6 +89,11 @@ const router = createRouter({
             path: '/notifications',
             name: 'Notifications',
             component: NotificationsPage  // 添加通知页面路由
+        },
+        {
+            path: '/event-booking/:eventID',
+            name: 'EventBooking',
+            component: () => import('@/components/EventBooking.vue')
         }
     ]
 });
