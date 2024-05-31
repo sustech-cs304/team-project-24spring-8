@@ -2,6 +2,7 @@
   <div class="notifications-page">
     <h1>通知</h1>
     <button @click="fetchNotifications">刷新通知</button>
+    <button @click="goToAddNotification">增加通知</button> <!-- 新增的按钮 -->
     <p v-if="error" class="error-message">{{ error }}</p>
     <ul v-if="notificationsList.length > 0">
       <li v-for="notification in notificationsList" :key="notification.id" class="notification-item">
@@ -52,6 +53,9 @@ export default {
         // 错误处理，检查并使用错误响应的详细信息
         this.error = error.response && error.response.data ? error.response.data.detail : '获取通知失败，请重试';
       }
+    },
+    goToAddNotification() {
+      this.$router.push('/add-notification');
     }
   }
 }

@@ -6,7 +6,7 @@
       <router-link to="/events" class="nav-link">Event</router-link>
     </div>
     <div>
-      <router-link to="/notifications" class="notification-bell">
+      <router-link to="/notifications" class="notification-bell" @click="markAllNotificationsRead">
         <span class="bell-icon">🔔</span>
         <span class="notification-count" v-if="notifications > 0">{{ notifications }}</span>
       </router-link>
@@ -31,7 +31,7 @@ export default {
   },
   created() {
     this.fetchNotificationCount();
-    // 设置定时器每秒刷新一次
+    // 设置定时器每 10 秒刷新一次
     this.intervalId = setInterval(this.fetchNotificationCount, 10000);
   },
   beforeUnmount() {
@@ -48,11 +48,33 @@ export default {
         return;
       }
       try {
-        const response = await axios.get('http://localhost:8001/notifications/');
-        console.log(response.data); 
-        this.notifications = response.data.count; 
+        const response = await axios.get('http://localhost:8001/notifications/', {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        const notifications = response.data.notifications;
+        this.notifications = notifications.filter(notification => !notification.haven_read).length; // 计算未读通知数量
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
+      }
+    },
+    async markAllNotificationsRead() {
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
+        console.error('请先登录');
+        return;
+      }
+      try {
+        await axios.put('http://localhost:8001/notifications/mark_all_read', {}, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        // 更新通知计数
+        await this.fetchNotificationCount();
+      } catch (error) {
+        console.error('Failed to mark notifications as read:', error);
       }
     }
   }
