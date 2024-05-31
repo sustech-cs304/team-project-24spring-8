@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship
 from pydantic import BaseModel
@@ -51,6 +51,7 @@ class Notification(Base):
     sender = Column(String)
     owner_id = Column(Integer, ForeignKey('users.id'))
     owner = relationship("User", back_populates="notifications")
+    haven_read = Column(Boolean, default=False)
 
 
 class Event(Base):
@@ -153,6 +154,7 @@ class NotificationRead(BaseModel):
     created_at: str
     sender: str
     owner_id: int
+    haven_read: bool
 
     class Config:
         orm_mode = True
@@ -297,11 +299,11 @@ def startup_event():
         # 给user1填充Notification 表
         notificationsList = [
             {"message": "你有一个新的讨论回复", "created_at": "2023-04-01T12:00:00Z", "sender": "系统通知",
-             "owner_id": user1.id},
+             "owner_id": user1.id, "haven_read": False},
             {"message": "活动报名开始了", "created_at": "2023-04-02T12:00:00Z", "sender": "系统通知",
-             "owner_id": user1.id},
+             "owner_id": user1.id, "haven_read": False},
             {"message": "新的评论在你的帖子上", "created_at": "2023-04-03T12:00:00Z", "sender": "user2",
-             "owner_id": user1.id}
+             "owner_id": user1.id, "haven_read": False}
         ]
         for notification_data in notificationsList:
             notification = db.query(Notification).filter(Notification.message == notification_data['message']).first()
@@ -571,8 +573,6 @@ def create_notification(notification: NotificationCreate, db: Session = Depends(
     return db_notification
 
 
-
-
 class NotificationsResponse(BaseModel):
     count: int
     notifications: List[NotificationRead]
@@ -599,3 +599,11 @@ def read_notification(notification_id: int, db: Session = Depends(get_db), user_
         raise HTTPException(status_code=404, detail="Notification not found")
     print(f"Notification with ID: {notification_id} found")
     return NotificationRead.from_orm(db_notification)
+
+@app.put("/notifications/mark_all_read")
+def mark_all_notifications_read(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    print(f"Marking all notifications as read for user_id: {user_id}")
+    db.query(Notification).filter(Notification.owner_id == user_id).update({"haven_read": True})
+    db.commit()
+    print(f"All notifications marked as read for user_id: {user_id}")
+    return {"detail": "All notifications marked as read"}
