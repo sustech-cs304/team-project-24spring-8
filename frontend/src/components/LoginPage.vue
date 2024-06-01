@@ -1,11 +1,3 @@
-<!--
- * @Author: lerrorgk lerrorgk@163.com
- * @Date: 2024-05-27 15:15:01
- * @LastEditors: lerrorgk lerrorgk@163.com
- * @LastEditTime: 2024-05-27 16:50:10
- * @FilePath: \team-project-24spring-8\frontend\src\components\LoginPage.vue
- * @Description: 
--->
 <template>
   <div class="d-flex justify-content-center align-items-center vh-100 login-background">
     <div class="card p-4 login-box" style="width: 400px;">
@@ -22,6 +14,9 @@
         <button type="submit" class="btn btn-primary w-100">登录</button>
       </form>
       <p v-if="error" class="text-danger mt-3">{{ error }}</p>
+      <p class="mt-3 text-center">
+        还没有账号？ <router-link to="/register">注册</router-link>
+      </p>
     </div>
   </div>
 </template>
