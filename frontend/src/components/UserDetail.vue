@@ -15,12 +15,20 @@
           </div>
           <button type="submit" class="btn btn-primary w-100">保存</button>
         </form>
-      </div>
-    </div>
 
-    <div class="card user-card mt-4">
-      <div class="card-body">
-        <h2 class="card-title">修改密码</h2>
+        <h2 class="card-title mt-4">头像</h2>
+        <form @submit.prevent="uploadAvatar" class="profile-form">
+          <div class="form-group">
+            <label for="avatar">上传新头像:</label>
+            <input type="file" id="avatar" ref="avatar" @change="previewAvatar" class="form-control" />
+            <div class="avatar-upload mt-3">
+              <img v-if="profile.avatar" :src="profile.avatar" alt="User Avatar" class="user-avatar" />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">上传头像</button>
+        </form>
+
+        <h2 class="card-title mt-4">修改密码</h2>
         <form @submit.prevent="changePassword" class="profile-form">
           <div class="form-group">
             <label for="password">新密码:</label>
@@ -48,7 +56,8 @@ export default {
       error: '',
       profile: {
         full_name: '',
-        email: ''
+        email: '',
+        avatar: null
       }
     };
   },
@@ -93,6 +102,34 @@ export default {
         this.message = '';
       }
     },
+    async uploadAvatar() {
+      try {
+        const userId = localStorage.getItem('user_id');
+        const token = localStorage.getItem('access_token');
+        const formData = new FormData();
+        const file = this.$refs.avatar.files[0];
+        
+        if (!file) {
+          this.error = '请先选择一个文件';
+          return;
+        }
+        
+        formData.append('file', file);
+        const response = await axios.post(`http://localhost:8001/upload-avatar/${userId}`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        this.profile.avatar = response.data.avatar_path;
+        this.message = '头像上传成功！';
+        this.error = '';
+        localStorage.setItem('avatar_url', response.data.avatar_path);
+      } catch (error) {
+        this.error = error.response && error.response.data ? error.response.data.detail : '头像上传失败，请重试';
+        this.message = '';
+      }
+    },
     async fetchUserProfile() {
       try {
         const userId = localStorage.getItem('user_id');
@@ -104,8 +141,15 @@ export default {
         });
         this.profile.full_name = response.data.full_name;
         this.profile.email = response.data.email;
+        this.profile.avatar = `http://localhost:8001/${response.data.avatar_path}`;
       } catch (error) {
         console.error("无法获取用户信息", error);
+      }
+    },
+    previewAvatar(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.profile.avatar = URL.createObjectURL(file);
       }
     }
   },
