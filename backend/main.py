@@ -125,6 +125,10 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
+class UserUpdate(BaseModel):
+    full_name: str
+    email: str
+
 
 class PostCreate(BaseModel):
     title: str
@@ -358,18 +362,19 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
-@app.put("/users/{user_id}", response_model=UserRead)
-def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
+@app.put("/users/{user_id}/profile", response_model=UserRead)
+def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db), current_user_id: int = Depends(get_current_user_id)):
+    if user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="Operation not permitted")
     db_user = db.query(User).filter(User.id == user_id).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    db_user.username = user.username
-    db_user.email = user.email
     db_user.full_name = user.full_name
-    db_user.hashed_password = user.hashed_password
+    db_user.email = user.email
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 
 @app.post("/events/", response_model=EventRead)
@@ -587,6 +592,7 @@ def read_notifications(db: Session = Depends(get_db), user_id: int = Depends(get
         count=len(notifications),
         notifications=[NotificationRead.from_orm(notification) for notification in notifications]
     )
+
 
 @app.get("/notifications/{notification_id}", response_model=NotificationRead)
 def read_notification(notification_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):

@@ -1,39 +1,37 @@
 <template>
   <div class="user-detail-container">
-    <h1>用户详情</h1>
-    <p>用户名: {{ username }}</p>
-
-    <div class="user-profile">
-      <h2>个人信息</h2>
-      <form @submit.prevent="updateProfile" class="profile-form">
-        <div class="form-group">
-          <label for="name">姓名:</label>
-          <input type="text" id="name" v-model="profile.name" placeholder="请输入姓名" />
-        </div>
-        <div class="form-group">
-          <label for="email">邮箱:</label>
-          <input type="email" id="email" v-model="profile.email" placeholder="请输入邮箱" />
-        </div>
-        <div class="form-group">
-          <label for="avatar">头像:</label>
-          <input type="file" id="avatar" @change="previewAvatar" />
-          <div class="avatar-upload">
-            <img v-if="profile.avatar" :src="profile.avatar" alt="User Avatar" class="user-avatar" />
+    <h1 class="text-center mb-4">用户详情</h1>
+    <div class="card user-card">
+      <div class="card-body">
+        <h2 class="card-title">个人信息</h2>
+        <form @submit.prevent="updateProfile" class="profile-form">
+          <div class="form-group">
+            <label for="name">姓名:</label>
+            <input type="text" id="name" v-model="profile.full_name" placeholder="请输入姓名" class="form-control" />
           </div>
-        </div>
-        <button type="submit" class="save-btn">保存</button>
-      </form>
+          <div class="form-group">
+            <label for="email">邮箱:</label>
+            <input type="email" id="email" v-model="profile.email" placeholder="请输入邮箱" class="form-control" />
+          </div>
+          <button type="submit" class="btn btn-primary w-100">保存</button>
+        </form>
+      </div>
     </div>
 
-    <form @submit.prevent="changePassword">
-      <div class="mb-3">
-        <label for="password" class="form-label">新密码:</label>
-        <input type="password" id="password" v-model="newPassword" class="form-control" required />
+    <div class="card user-card mt-4">
+      <div class="card-body">
+        <h2 class="card-title">修改密码</h2>
+        <form @submit.prevent="changePassword" class="profile-form">
+          <div class="form-group">
+            <label for="password">新密码:</label>
+            <input type="password" id="password" v-model="newPassword" placeholder="请输入新密码" class="form-control" required />
+          </div>
+          <button type="submit" class="btn btn-primary w-100">修改密码</button>
+        </form>
+        <p v-if="message" class="text-success mt-3">{{ message }}</p>
+        <p v-if="error" class="text-danger mt-3">{{ error }}</p>
       </div>
-      <button type="submit" class="btn btn-primary">修改密码</button>
-    </form>
-    <p v-if="message" class="text-success mt-3">{{ message }}</p>
-    <p v-if="error" class="text-danger mt-3">{{ error }}</p>
+    </div>
   </div>
 </template>
 
@@ -49,9 +47,8 @@ export default {
       message: '',
       error: '',
       profile: {
-        name: '张三',
-        email: 'zhangsan@example.com',
-        avatar: null
+        full_name: '',
+        email: ''
       }
     };
   },
@@ -74,16 +71,46 @@ export default {
         this.message = '';
       }
     },
-    updateProfile() {
-      alert('个人信息已更新！');
+    async updateProfile() {
+      try {
+        const userId = localStorage.getItem('user_id');
+        const token = localStorage.getItem('access_token');
+        const response = await axios.put(`http://localhost:8001/users/${userId}/profile`, {
+          full_name: this.profile.full_name,
+          email: this.profile.email
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        this.profile.full_name = response.data.full_name;
+        this.profile.email = response.data.email;
+        this.message = '个人信息已更新！';
+        this.error = '';
+      } catch (error) {
+        this.error = error.response && error.response.data ? error.response.data.detail : '个人信息更新失败，请重试';
+        this.message = '';
+      }
     },
-    previewAvatar(event) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.profile.avatar = e.target.result;
-      };
-      reader.readAsDataURL(event.target.files[0]);
+    async fetchUserProfile() {
+      try {
+        const userId = localStorage.getItem('user_id');
+        const token = localStorage.getItem('access_token');
+        const response = await axios.get(`http://localhost:8001/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        this.profile.full_name = response.data.full_name;
+        this.profile.email = response.data.email;
+      } catch (error) {
+        console.error("无法获取用户信息", error);
+      }
     }
+  },
+  created() {
+    this.fetchUserProfile();
   }
 };
 </script>
@@ -93,32 +120,20 @@ export default {
   max-width: 600px;
   margin: 50px auto;
   padding: 20px;
+}
+
+.user-card {
   background: white;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.text-success {
-  color: green;
-}
-
-.text-danger {
-  color: red;
-}
-
-.user-profile {
-  max-width: 500px;
-  margin: auto;
-  background: linear-gradient(135deg, #957DAD, #D291BC);
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  color: #fff;
+  margin-bottom: 20px;
 }
 
-.user-profile h2 {
+.card-title {
   color: #5e3370;
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .profile-form {
@@ -133,24 +148,23 @@ export default {
 label {
   display: block;
   margin-bottom: 5px;
-  color: #f0e8f0;
+  color: #333;
 }
 
-input[type="text"], input[type="email"], input[type="file"] {
+input[type="text"], input[type="email"], input[type="file"], input[type="password"] {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
-  background: #ffffff30;
-  color: #fff;
-  border: 2px solid #ffffff50;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
   box-shadow: none;
 }
 
 input::placeholder {
-  color: #e6e6e6;
+  color: #999;
 }
 
-.save-btn {
+.btn-primary {
   background-color: #8e44ad;
   color: white;
   border: none;
@@ -160,13 +174,13 @@ input::placeholder {
   transition: background-color 0.3s ease;
 }
 
-.save-btn:hover {
+.btn-primary:hover {
   background-color: #5e3370;
 }
 
 .avatar-upload {
   text-align: center;
-  margin-bottom: 20px;
+  margin-top: 10px;
 }
 
 .user-avatar {
@@ -176,17 +190,4 @@ input::placeholder {
   border: 2px solid #8e44ad;
   object-fit: cover;
 }
-
-.upload-label {
-  display: block;
-  color: #8e44ad;
-  cursor: pointer;
-  font-size: 0.9em;
-  transition: color 0.3s ease;
-}
-
-.upload-label:hover {
-  color: #5e3370;
-}
-
 </style>
