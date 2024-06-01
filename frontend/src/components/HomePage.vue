@@ -17,10 +17,9 @@
       <button @click="goToReminders" class="action-button">查看提醒</button>
       <button @click="goToUserProfile" class="action-button">用户配置</button>
       <button @click="goToPostList" class="action-button">帖子列表</button>
-      <button @click="goToRecommendationsList" class="action-button">个性化推荐</button>
       <button @click="goToEventsPage" class="action-button">活动</button>
-      <button @click="goToEventBooking" class="action-button">活动预订</button>
       <button @click="fetchFirstUsername" class="action-button">获取第一个用户的用户名</button>
+      <button @click="goToMyTickets" class="action-button">我的购票</button>
       <button @click="logout" class="action-button">退出登录</button>
     </div>
     
@@ -82,14 +81,14 @@ export default {
     goToEventsPage() {
       this.$router.push({ name: 'EventsPage' });
     },
-    goToEventBooking() {
-      this.$router.push({ name: 'EventBooking' });
-    },
     goToRecommendationsList() {
       this.$router.push({ name: 'RecommendationsList' });
     },
     goToPostList() {
       this.$router.push({ name: 'PostList' });
+    },
+    goToMyTickets() {
+      this.$router.push({ name: 'MyTicketsPage' });
     },
     logout() {
       localStorage.removeItem('access_token'); // 移除令牌
@@ -116,11 +115,15 @@ h1 {
 }
 
 .button-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap; /* 确保按钮在一行 */
   margin: 20px 0;
+  overflow-x: auto;
 }
 
 .action-button {
-  margin: 0 10px;
+  margin: 0 5px; /* 调整按钮的左右间距 */
   background-color: #6A0DAD;
   color: #fff;
   border: none;
@@ -128,6 +131,7 @@ h1 {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  white-space: nowrap;
 }
 
 .action-button:hover {

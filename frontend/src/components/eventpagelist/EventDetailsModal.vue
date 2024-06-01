@@ -7,8 +7,9 @@
       <p>Date: {{ formatDate(event.event_time) }}</p>
       <p>Description: {{ event.description }}</p>
       <p>Duration: {{ formatDuration(event.duration_hours, event.duration_minutes) }}</p>
-      <p>tickets_sold: {{ event.tickets_sold }}</p>
-      <p>max_tickets: {{ event.max_tickets }}</p>
+      <p>Price: {{ formatCurrency(event.price) }}</p> <!-- 显示价格 -->
+      <p>Tickets Sold: {{ event.tickets_sold }}</p>
+      <p>Max Tickets: {{ event.max_tickets }}</p>
 
       <button @click="toggleExpand">查看更多</button>
 
@@ -99,13 +100,16 @@ export default {
       const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
       return new Date(date).toLocaleDateString(undefined, options);
     },
-    formatDuration(hours, minutes) { // 新增方法
+    formatDuration(hours, minutes) {
       if (hours == null && minutes == null) return 'N/A';
       const hrs = hours ? `${hours}h` : '';
       const mins = minutes ? `${minutes}m` : '';
       return `${hrs} ${mins}`.trim();
     },
-
+    formatCurrency(value) {
+      if (value == null) return 'N/A';
+      return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(value);
+    },
     bookTickets() {
       // 跳转到订票页面
       this.$router.push({ name: 'EventBooking', params: { eventID: this.event.id } });
