@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div>
-      <router-link to="/home" class="nav-link">Home</router-link> <!-- 新增 Home 链接 -->
+      <router-link to="/home" class="nav-link">Home</router-link>
       <router-link to="/discussions" class="nav-link">Discussion</router-link>
       <router-link to="/events" class="nav-link">Event</router-link>
     </div>
@@ -10,12 +10,15 @@
         <span class="bell-icon">🔔</span>
         <span class="notification-count" v-if="notifications > 0">{{ notifications }}</span>
       </router-link>
-      <router-link to="/user-detail" class="nav-link">
+      <router-link to="/user-detail" class="nav-link user-info">
+        <img :src="avatarUrl" alt="用户头像" class="avatar">
         <span class="username-display">当前用户: {{ username }}</span>
       </router-link>
+      <button @click="logout" class="action-button logout-button">退出登录</button>
     </div>
   </nav>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -24,23 +27,46 @@ export default {
   name: 'NavbarPage',
   data() {
     return {
-      notifications: 0, // 初始化通知数量为 0
-      username: localStorage.getItem('username') || '未登录', // 获取存储的用户名或显示默认值
-      intervalId: null // 用于存储定时器 ID
+      notifications: 0,
+      username: '未登录',
+      avatarUrl: 'http://localhost:8001/avatars/default_avatar.png', // 默认头像 URL
+      intervalId: null
     };
   },
   created() {
+    this.updateUserInfo();
     this.fetchNotificationCount();
-    // 设置定时器每 10 秒刷新一次
     this.intervalId = setInterval(this.fetchNotificationCount, 10000);
   },
   beforeUnmount() {
-    // 清除定时器
     if (this.intervalId) {
       clearInterval(this.intervalId);
     }
   },
   methods: {
+    updateUserInfo() {
+      const username = localStorage.getItem('username') || '未登录';
+      const userId = localStorage.getItem('user_id');
+      const accessToken = localStorage.getItem('access_token');
+
+      if (userId && accessToken) {
+        axios.get(`http://localhost:8001/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+        .then(response => {
+          this.username = response.data.username;
+          this.avatarUrl = response.data.avatar_path ? `http://localhost:8001/${response.data.avatar_path}` : this.avatarUrl;
+          console.log('User data response:', `http://localhost:8001/${response.data.avatar_path}`);  // 添加这一行来输出 response 以进行调试
+        })
+        .catch(error => {
+          console.error('无法获取用户数据:', error);
+        });
+      } else {
+        this.username = username;
+      }
+    },
     async fetchNotificationCount() {
       const accessToken = localStorage.getItem('access_token');
       if (!accessToken) {
@@ -54,7 +80,7 @@ export default {
           }
         });
         const notifications = response.data.notifications;
-        this.notifications = notifications.filter(notification => !notification.haven_read).length; // 计算未读通知数量
+        this.notifications = notifications.filter(notification => !notification.haven_read).length;
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
       }
@@ -71,11 +97,23 @@ export default {
             Authorization: `Bearer ${accessToken}`
           }
         });
-        // 更新通知计数
         await this.fetchNotificationCount();
       } catch (error) {
         console.error('Failed to mark notifications as read:', error);
       }
+    },
+    logout() {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('username');
+      localStorage.removeItem('user_id');
+      localStorage.removeItem('avatar_url');
+      delete axios.defaults.headers.common['Authorization'];
+      window.location.reload();
+    }
+  },
+  watch: {
+    '$route'() {
+      this.updateUserInfo();
     }
   }
 }
@@ -83,30 +121,30 @@ export default {
 
 <style scoped>
 .navbar {
-  display: flex; /* 确保使用 flex 布局 */
-  justify-content: space-between; /* 两端对齐 */
-  align-items: center; /* 垂直居中 */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px 20px;
   background: #333;
   color: #fff;
-  width: 100%; /* 确保导航条宽度为 100% */
+  width: 100%;
 }
 
 .navbar > div {
-  display: flex; /* 确保内部 div 也使用 flex 布局 */
-  align-items: center; /* 垂直居中 */
+  display: flex;
+  align-items: center;
 }
 
 .nav-link {
   color: #fff;
   text-decoration: none;
-  margin-right: 20px; /* 为导航链接之间添加右边距 */
+  margin-right: 20px;
 }
 
 .notification-bell {
   cursor: pointer;
-  position: relative; /* 相对定位用于通知计数 */
-  margin-right: 20px; /* 右边距离下一个元素 */
+  position: relative;
+  margin-right: 20px;
 }
 
 .notification-count {
@@ -120,11 +158,37 @@ export default {
   font-size: 12px;
 }
 
+.user-info {
+  display: flex;
+  align-items: center;
+  color: #fff;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
 .username-display {
   color: #fff;
 }
 
 .username-display:hover {
   text-decoration: underline;
+}
+
+.logout-button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.logout-button:hover {
+  background-color: darkred;
 }
 </style>

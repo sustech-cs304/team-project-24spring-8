@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, File, UploadFile
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
@@ -8,6 +9,8 @@ from pydantic import BaseModel
 from jose import jwt, JWTError
 from typing import List
 from datetime import datetime, timedelta
+import os
+import shutil
 
 DATABASE_URL = "sqlite:///./test.db"
 SECRET_KEY = "YOUR_SECRET_KEY"
@@ -26,7 +29,8 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     full_name = Column(String)
-    hashed_password = Column(String)
+    hashed_password = Column(String) 
+    avatar_path = Column(String, default="avatars/default_avatar.png")
     events = relationship("Event", back_populates="owner")
     posts = relationship("Post", back_populates="owner")
     comments = relationship("Comment", back_populates="owner")
@@ -120,6 +124,7 @@ class UserRead(BaseModel):
     username: str
     email: str
     full_name: str
+    avatar_path: str
 
 
 class UserLogin(BaseModel):
@@ -271,17 +276,20 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
 
 
+UPLOAD_DIRECTORY = "avatars"
 @app.on_event("startup")
 def startup_event():
+    if not os.path.exists(UPLOAD_DIRECTORY):
+        os.makedirs(UPLOAD_DIRECTORY)
     db = SessionLocal()
     # Adding users
     test_users = [
         {"username": "user1", "email": "user1@example.com", "full_name": "User One",
-         "hashed_password": "hashedpassword1"},
+         "hashed_password": "hashedpassword1", "avatar_path": "avatars/default_avatar.png"},
         {"username": "user2", "email": "user2@example.com", "full_name": "User Two",
-         "hashed_password": "hashedpassword2"},
+         "hashed_password": "hashedpassword2", "avatar_path": "avatars/default_avatar.png"},
         {"username": "user3", "email": "user3@example.com", "full_name": "User Three",
-         "hashed_password": "hashedpassword3"}
+         "hashed_password": "hashedpassword3", "avatar_path": "avatars/default_avatar.png"}
     ]
     for user_data in test_users:
         user = db.query(User).filter(User.username == user_data['username']).first()
@@ -377,6 +385,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.id == user_id).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
+    print(db_user.avatar_path)
     return db_user
 
 
@@ -393,6 +402,24 @@ def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db), c
     db.refresh(db_user)
     return db_user
 
+
+
+app.mount("/avatars", StaticFiles(directory=UPLOAD_DIRECTORY), name="avatars")
+@app.post("/upload-avatar/{user_id}", response_model=UserRead)
+async def upload_avatar(user_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    print("upload_avatar")
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    file_location = f"{UPLOAD_DIRECTORY}/{user_id}_{file.filename}"
+    with open(file_location, "wb+") as file_object:
+        shutil.copyfileobj(file.file, file_object)
+
+    user.avatar_path = f"avatars/{user_id}_{file.filename}"  # 更新用户头像路径
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 @app.post("/events/", response_model=EventRead)

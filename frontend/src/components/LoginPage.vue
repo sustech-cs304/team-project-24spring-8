@@ -45,6 +45,7 @@ export default {
         localStorage.setItem('access_token', access_token); // Store the access token in local storage
         localStorage.setItem('username', this.username); // Store the username in local storage
         localStorage.setItem('user_id', user_id); // Store the user id in local storage
+        localStorage.setItem('avatar_url', response.data.avatar_url); // Store the avatar URL in local storage
         this.$router.push({ name: 'HomePage' }); // Redirect to home page
       } catch (error) {
         this.error = error.response && error.response.data ? error.response.data.detail : '登录失败，请重试';
