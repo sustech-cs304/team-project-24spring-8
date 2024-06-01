@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div>
-      <router-link to="/home" class="nav-link">Home</router-link> <!-- 新增 Home 链接 -->
+      <router-link to="/home" class="nav-link">Home</router-link>
       <router-link to="/discussions" class="nav-link">Discussion</router-link>
       <router-link to="/events" class="nav-link">Event</router-link>
     </div>
@@ -25,11 +25,12 @@ export default {
   data() {
     return {
       notifications: 0, // 初始化通知数量为 0
-      username: localStorage.getItem('username') || '未登录', // 获取存储的用户名或显示默认值
+      username: '未登录', // 初始化用户名为未登录
       intervalId: null // 用于存储定时器 ID
     };
   },
   created() {
+    this.updateUsername();
     this.fetchNotificationCount();
     // 设置定时器每 10 秒刷新一次
     this.intervalId = setInterval(this.fetchNotificationCount, 10000);
@@ -41,6 +42,9 @@ export default {
     }
   },
   methods: {
+    updateUsername() {
+      this.username = localStorage.getItem('username') || '未登录';
+    },
     async fetchNotificationCount() {
       const accessToken = localStorage.getItem('access_token');
       if (!accessToken) {
@@ -76,6 +80,12 @@ export default {
       } catch (error) {
         console.error('Failed to mark notifications as read:', error);
       }
+    }
+  },
+  watch: {
+    '$route'() {
+      // 每次路由变化时更新用户名
+      this.updateUsername();
     }
   }
 }
