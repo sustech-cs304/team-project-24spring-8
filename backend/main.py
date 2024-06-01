@@ -62,6 +62,7 @@ class Event(Base):
     description = Column(String)
     duration_hours = Column(Integer)
     duration_minutes = Column(Integer)
+    price = Column(Integer, default=0)
     tickets_sold = Column(Integer, default=0)  # 已售出票数
     max_tickets = Column(Integer)  # 最大票数限制
     owner_id = Column(Integer, ForeignKey('users.id'))
@@ -186,6 +187,7 @@ class EventCreate(BaseModel):
     description: str
     duration_hours: int  # 新增字段
     duration_minutes: int
+    price: int
     tickets_sold: int
     max_tickets: int
 
@@ -197,6 +199,7 @@ class EventRead(BaseModel):
     description: str
     duration_hours: int  # 新增字段
     duration_minutes: int
+    price: int
     owner_id: int
     tickets_sold: int
     max_tickets: int
@@ -334,13 +337,13 @@ def startup_event():
         test_events = [
             {"name": "南科音乐节", "event_time": datetime(2023, 6, 9, 10, 0),
              "description": "享受音乐狂欢",
-             "duration_hours": 2, "duration_minutes": 30, "owner_id": user1.id, "max_tickets": 10, "tickets_sold": 9},
+             "duration_hours": 2, "duration_minutes": 30, "price": 20, "owner_id": user1.id, "max_tickets": 10, "tickets_sold": 9},
             {"name": "科技博览会", "event_time": datetime(2023, 6, 13, 14, 0),
              "description": "近距离接触世界最前沿的科技成果。",
-             "duration_hours": 3, "duration_minutes": 20, "owner_id": user1.id, "max_tickets": 5, "tickets_sold": 0},
+             "duration_hours": 3, "duration_minutes": 20, "price":30, "owner_id": user1.id, "max_tickets": 5, "tickets_sold": 0},
             {"name": "南科足球赛", "event_time": datetime(2023, 6, 8, 8, 0),
              "description": "强强对决，谁与争锋。",
-             "duration_hours": 2, "duration_minutes": 10, "owner_id": user1.id, "max_tickets": 15, "tickets_sold": 2}
+             "duration_hours": 2, "duration_minutes": 10, "price":25, "owner_id": user1.id, "max_tickets": 15, "tickets_sold": 2}
         ]
         print("events_init")
         for event_data in test_events:
@@ -394,16 +397,22 @@ def update_user(user_id: int, user: UserUpdate, db: Session = Depends(get_db), c
 
 @app.post("/events/", response_model=EventRead)
 def create_event(event: EventCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
-    print("create_event")
-    if not isinstance(event.duration, int) or event.duration <= 0:
-        raise HTTPException(status_code=400, detail="Duration must be a positive integer")
-    db_event = Event(name=event.name, event_time=event.event_time, description=event.description,
-                     duration=event.duration, owner_id=user_id, tickets_sold=event.tickets_sold,
-                     max_tickets=event.max_tickets)
+    db_event = Event(
+        name=event.name,
+        event_time=event.event_time,
+        description=event.description,
+        duration_hours=event.duration_hours,
+        duration_minutes=event.duration_minutes,
+        price=event.price,
+        tickets_sold=event.tickets_sold,
+        max_tickets=event.max_tickets,
+        owner_id=user_id
+    )
     db.add(db_event)
     db.commit()
     db.refresh(db_event)
     return db_event
+
 
 
 @app.get("/events/", response_model=List[EventRead])
@@ -433,18 +442,21 @@ def read_event(event_id: int, db: Session = Depends(get_db)):
 @app.put("/events/{event_id}", response_model=EventRead)
 def update_event(event_id: int, event: EventCreate, db: Session = Depends(get_db),
                  user_id: int = Depends(get_current_user_id)):
-    print("update_event")
     db_event = db.query(Event).filter(Event.id == event_id).first()
     if db_event is None:
         raise HTTPException(status_code=404, detail="Event not found")
     if db_event.owner_id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized to update this event")
+
     db_event.name = event.name
     db_event.event_time = event.event_time
     db_event.description = event.description
-    db_event.duration = event.duration
+    db_event.duration_hours = event.duration_hours
+    db_event.duration_minutes = event.duration_minutes
+    db_event.price = event.price
     db_event.tickets_sold = event.tickets_sold
     db_event.max_tickets = event.max_tickets
+
     db.commit()
     db.refresh(db_event)
     return db_event
