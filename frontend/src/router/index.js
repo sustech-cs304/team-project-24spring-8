@@ -10,7 +10,8 @@ import LoginPage from '../components/LoginPage.vue';
 import HomePage from '../components/HomePage.vue';
 import UserDetail from '../components/UserDetail.vue';
 import NotificationsPage from '../components/NotificationsPage.vue';
-import AddNotification from '../components/AddNotification.vue';  // 引入增加通知页面组件
+import MyTicketsPage from '@/components/MyTicketsPage.vue';
+import AddNotification from '../components/AddNotification.vue';
 
 const routes = [
   {
@@ -95,7 +96,7 @@ const routes = [
     path: '/add-notification',
     name: 'AddNotification',
     component: AddNotification,
-    meta: { requiresAuth: true },  // 添加增加通知页面的路由
+    meta: { requiresAuth: true },
   },
   {
     path: '/event-booking/:eventID',
@@ -104,9 +105,14 @@ const routes = [
     props: true,
     meta: { requiresAuth: true },
   },
+  {
+    path: '/my-tickets',
+    name: 'MyTicketsPage',
+    component: MyTicketsPage,
+    meta: { requiresAuth: true },
+  },
 ];
 
-// 添加全局前置守卫
 const router = createRouter({
   history: createWebHistory(),
   routes,

@@ -22,6 +22,7 @@
       <button @click="goToEventBooking" class="action-button">活动预订</button>
       <button @click="fetchFirstUsername" class="action-button">获取第一个用户的用户名</button>
       <button @click="logout" class="action-button">退出登录</button>
+      <button @click="goToMyTickets" class="action-button">我的购票</button> <!-- 新增按钮 -->
     </div>
     
     <!-- 模态框 -->
@@ -35,6 +36,7 @@
     <router-view></router-view>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
@@ -91,6 +93,9 @@ export default {
     goToPostList() {
       this.$router.push({ name: 'PostList' });
     },
+    goToMyTickets() {
+      this.$router.push({ name: 'MyTicketsPage' });
+    },
     logout() {
       localStorage.removeItem('access_token'); // 移除令牌
       localStorage.removeItem('username'); // 移除用户名
@@ -116,11 +121,15 @@ h1 {
 }
 
 .button-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap; /* 确保按钮在一行 */
   margin: 20px 0;
+  overflow-x: auto;
 }
 
 .action-button {
-  margin: 0 10px;
+  margin: 0 5px; /* 调整按钮的左右间距 */
   background-color: #6A0DAD;
   color: #fff;
   border: none;
@@ -128,6 +137,7 @@ h1 {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  white-space: nowrap;
 }
 
 .action-button:hover {
