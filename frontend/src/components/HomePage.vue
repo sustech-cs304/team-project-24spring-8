@@ -17,12 +17,10 @@
       <button @click="goToReminders" class="action-button">查看提醒</button>
       <button @click="goToUserProfile" class="action-button">用户配置</button>
       <button @click="goToPostList" class="action-button">帖子列表</button>
-      <button @click="goToRecommendationsList" class="action-button">个性化推荐</button>
       <button @click="goToEventsPage" class="action-button">活动</button>
-      <button @click="goToEventBooking" class="action-button">活动预订</button>
       <button @click="fetchFirstUsername" class="action-button">获取第一个用户的用户名</button>
+      <button @click="goToMyTickets" class="action-button">我的购票</button>
       <button @click="logout" class="action-button">退出登录</button>
-      <button @click="goToMyTickets" class="action-button">我的购票</button> <!-- 新增按钮 -->
     </div>
     
     <!-- 模态框 -->
@@ -36,7 +34,6 @@
     <router-view></router-view>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -83,9 +80,6 @@ export default {
     },
     goToEventsPage() {
       this.$router.push({ name: 'EventsPage' });
-    },
-    goToEventBooking() {
-      this.$router.push({ name: 'EventBooking' });
     },
     goToRecommendationsList() {
       this.$router.push({ name: 'RecommendationsList' });
