@@ -588,7 +588,6 @@ def read_notifications(db: Session = Depends(get_db), user_id: int = Depends(get
         notifications=[NotificationRead.from_orm(notification) for notification in notifications]
     )
 
-
 @app.get("/notifications/{notification_id}", response_model=NotificationRead)
 def read_notification(notification_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
     print(f"Fetching notification with ID: {notification_id} for user_id: {user_id}")

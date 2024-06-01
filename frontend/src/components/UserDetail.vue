@@ -188,4 +188,5 @@ input::placeholder {
 .upload-label:hover {
   color: #5e3370;
 }
+
 </style>

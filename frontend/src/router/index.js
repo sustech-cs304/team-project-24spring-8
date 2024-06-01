@@ -7,6 +7,7 @@ import PostDetails from '../components/PostDetails.vue';
 import EventsPage from '../components/EventsPage.vue';
 import EventBooking from '../components/EventBooking.vue';
 import LoginPage from '../components/LoginPage.vue';
+import RegisterPage from '../components/RegisterPage.vue';
 import HomePage from '../components/HomePage.vue';
 import UserDetail from '../components/UserDetail.vue';
 import NotificationsPage from '../components/NotificationsPage.vue';
@@ -23,6 +24,12 @@ const routes = [
     name: 'HomePage',
     component: HomePage,
     meta: { requiresAuth: true },
+  },
+  {
+    path: '/register',
+    name: 'RegisterPage',
+    component: RegisterPage,
+    meta: { requiresAuth: false },
   },
   {
     path: '/reminders',
@@ -113,8 +120,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/'];
-  const authRequired = !publicPages.includes(to.path);
+  // const publicPages = ['/'];
+  const authRequired = to.matched.some(record => record.meta.requiresAuth);
   const loggedIn = localStorage.getItem('access_token');
 
   if (authRequired && !loggedIn) {
