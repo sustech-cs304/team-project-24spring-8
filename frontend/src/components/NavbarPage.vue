@@ -125,9 +125,10 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background: #333;
-  color: #fff;
+  background: #ffffff;
+  color: black;
   width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .navbar > div {
@@ -136,7 +137,7 @@ export default {
 }
 
 .nav-link {
-  color: #fff;
+  color: black;
   text-decoration: none;
   margin-right: 20px;
 }
@@ -152,7 +153,7 @@ export default {
   top: -10px;
   right: -10px;
   background-color: red;
-  color: white;
+  color: black;
   border-radius: 50%;
   padding: 2px 6px;
   font-size: 12px;
@@ -172,7 +173,7 @@ export default {
 }
 
 .username-display {
-  color: #fff;
+  color: black;
 }
 
 .username-display:hover {
