@@ -10,9 +10,10 @@ pipeline {
         }
             stage('Building image') {
             steps{
-                sh 'docker rm -f $(docker ps -aq) || true'
-                sh 'docker rmi -f $(docker images -aq) || true'
-                sh 'docker-compose build'
+                script {
+                    sh 'docker build -t myapp-frontend:latest -f frontend/Dockerfile ./frontend'
+                    sh 'docker build -t myapp-backend:latest -f backend/Dockerfile ./backend'
+                }
             }
         }
         // Uploading Docker images into Docker Hub
