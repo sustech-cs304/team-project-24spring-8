@@ -11,14 +11,16 @@
         <span class="bell-icon">🔔</span>
         <span class="notification-count" v-if="notifications > 0">{{ notifications }}</span>
       </router-link>
-      <router-link to="/user-detail" class="nav-link user-info">
+      <div class="user-info">
         <img :src="avatarUrl" alt="用户头像" class="avatar">
         <span class="username-display">当前用户: {{ username }}</span>
-      </router-link>
+        <span class="user-money">余额: ¥{{ money }}</span>
+      </div>
       <button @click="logout" class="action-button logout-button">退出登录</button>
     </div>
   </nav>
 </template>
+
 
 
 <script>
@@ -31,13 +33,14 @@ export default {
       notifications: 0,
       username: '未登录',
       avatarUrl: 'http://localhost:8001/avatars/default_avatar.png', // 默认头像 URL
+      money: 0,
       intervalId: null
     };
   },
   created() {
     this.updateUserInfo();
     this.fetchNotificationCount();
-    this.intervalId = setInterval(this.fetchNotificationCount, 10000);
+    this.intervalId = setInterval(this.fetchNotificationCount, 100);
   },
   beforeUnmount() {
     if (this.intervalId) {
@@ -59,6 +62,7 @@ export default {
         .then(response => {
           this.username = response.data.username;
           this.avatarUrl = response.data.avatar_path ? `http://localhost:8001/${response.data.avatar_path}` : this.avatarUrl;
+          this.money = response.data.money;
           console.log('User data response:', `http://localhost:8001/${response.data.avatar_path}`);  // 添加这一行来输出 response 以进行调试
         })
         .catch(error => {
@@ -69,6 +73,7 @@ export default {
       }
     },
     async fetchNotificationCount() {
+      const userId = localStorage.getItem('user_id');
       const accessToken = localStorage.getItem('access_token');
       if (!accessToken) {
         console.error('请先登录');
@@ -82,6 +87,13 @@ export default {
         });
         const notifications = response.data.notifications;
         this.notifications = notifications.filter(notification => !notification.haven_read).length;
+
+        const userResponse = await axios.get(`http://localhost:8001/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        this.money = userResponse.data.money;
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
       }
@@ -173,8 +185,9 @@ export default {
   margin-right: 10px;
 }
 
-.username-display {
+.username-display, .user-money {
   color: black;
+  margin-right: 10px;
 }
 
 .username-display:hover {
