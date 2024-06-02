@@ -37,7 +37,7 @@ pipeline {
                         
                         // Run uvicorn in the background and save its PID
                         sh 'uvicorn main:app --port 8001 & echo $! > uvicorn.pid'
-                        
+                        sleep 10
                     }
                     sh 'newman run se.postman_collection.json -e token.postman_environment.json --reporters html,cli --reporter-html-export output.html'
             }
