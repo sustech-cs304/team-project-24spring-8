@@ -42,6 +42,7 @@
           </form>
           <ul>
             <li v-for="comment in comments" :key="comment.id" class="post-item">
+              <img :src="comment.avatarUrl" alt="用户头像" class="avatar">
               {{ comment.content }}
             </li>
           </ul>
@@ -80,10 +81,36 @@ export default {
     async fetchComments() {
       this.loading = true;
       try {
+      
         const response = await axios.get(
           `http://localhost:8001/comments/${this.event.id}`
         );
         this.comments = response.data;
+        this.avatarUrl = "http://localhost:8001/avatars/default_avatar.png";
+        for (let comment of this.comments) {
+          const userId = comment.owner_id;
+          const accessToken = localStorage.getItem('access_token');
+          console.log('用户ID:', userId);
+          console.log('Token:', accessToken);
+          if (userId && accessToken) {
+            try {
+              const userResponse = await axios.get(`http://localhost:8001/users/${userId}`, {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`
+                }
+              });
+              comment.avatarUrl = userResponse.data.avatar_path ? `http://localhost:8001/${userResponse.data.avatar_path}` : this.avatarUrl;
+              console.log('用户数据:', userResponse.data);
+            } catch (error) {
+              console.error('无法获取用户数据:', error);
+              comment.avatarUrl = this.avatarUrl; // 使用默认头像
+            }
+          } else {
+            comment.avatarUrl = this.avatarUrl; // 使用默认头像
+            console.log('无用户数据');
+          }
+        }
+        console.log(this.comments);
       } catch (error) {
         this.error = "无法加载评论。" + error.message;
       } finally {
@@ -275,5 +302,12 @@ button:hover {
   padding: 6px;
   padding-left: 15px;
   border-radius: 0px 15px 15px 23px;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
 }
 </style>
