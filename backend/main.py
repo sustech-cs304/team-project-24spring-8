@@ -518,11 +518,23 @@ def create_ticket(event_id: int, ticket: TicketCreate, db: Session = Depends(get
                         IDcard=ticket.IDcard, phonenumber=ticket.phonenumber)
     db.add(new_ticket)
     # 更新已售出票数
-    event.tickets_sold += 1
+    event.tickets_sold += ticket.number
     db.commit()
     db.refresh(new_ticket)
 
     return {"message": "Ticket created successfully"}
+
+
+@app.get("/events/{event_id}/event_name")
+def get_event_details(event_id: int, db: Session = Depends(get_db)):
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    event_name = event.name
+    print(f'event_name: {event_name}')
+    return {
+        "event_name": event_name,
+    }
 
 
 @app.get("/events/{event_id}/tickets_left")
