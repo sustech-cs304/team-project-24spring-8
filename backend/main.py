@@ -97,6 +97,18 @@ class Comment(Base):
     owner_id = Column(Integer, ForeignKey('users.id'))
     owner = relationship("User", back_populates="comments")
 
+class PostComment(Base):
+    __tablename__ = 'post_comments'
+    id = Column(Integer, primary_key=True, index=True)
+    content = Column(String, index=True)
+    post_id = Column(Integer, ForeignKey('posts.id'))
+    post = relationship("Post", back_populates="comments")
+    owner_id = Column(Integer, ForeignKey('users.id'))
+    owner = relationship("User", back_populates="post_comments")
+
+Post.comments = relationship("PostComment", back_populates="post", cascade="all, delete-orphan")
+User.post_comments = relationship("PostComment", back_populates="owner", cascade="all, delete-orphan")
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -230,6 +242,15 @@ class CommentRead(BaseModel):
     owner_id: int
     event_id: int
 
+class PostCommentCreate(BaseModel):
+    content: str
+
+class PostCommentRead(BaseModel):
+    id: int
+    content: str
+    owner_id: int
+    post_id: int
+
 
 def get_db():
     db = SessionLocal()
@@ -315,10 +336,24 @@ def startup_event():
                 db_post = Post(**post_data)
                 db.add(db_post)
         db.commit()
+
+        # Adding comments for posts
+        test_post_comments = [
+            {"content": "非常有见地的讲座，有很多启发性的内容。", "owner_id": user1.id, "post_id": 1},
+            {"content": "详细回顾了AI的发展历史及其对未来社会的影响。", "owner_id": user1.id, "post_id": 1},
+            {"content": "探讨了大数据技术面临的主要挑战及其解决方案。", "owner_id": user1.id, "post_id": 2}
+        ]
+        for post_comment_data in test_post_comments:
+            post_comment = db.query(PostComment).filter(PostComment.content == post_comment_data['content']).first()
+            if not post_comment:
+                db_post_comment = PostComment(**post_comment_data)
+                db.add(db_post_comment)
+        db.commit()
+
         test_comments = [
-            {"content": "非常有见地的讲座，有很多启发性的内容.", "owner_id": user1.id,"event_id": 1},
-            {"content": "详细回顾了AI的发展历史及其对未来社会的影响.", "owner_id": user1.id,"event_id": 1},
-            {"content": "探讨了大数据技术面临的主要挑战及其解决方案.", "owner_id": user1.id,"event_id": 2}
+            {"content": "非常有见地的讲座，有很多启发性的内容。", "owner_id": user1.id, "event_id": 1},
+            {"content": "详细回顾了AI的发展历史及其对未来社会的影响。", "owner_id": user1.id, "event_id": 1},
+            {"content": "探讨了大数据技术面临的主要挑战及其解决方案。", "owner_id": user1.id, "event_id": 2}
         ]
         for comment_data in test_comments:
             comment = db.query(Comment).filter(Comment.content == comment_data['content']).first()
@@ -326,7 +361,8 @@ def startup_event():
                 db_comment = Comment(**comment_data)
                 db.add(db_comment)
         db.commit()
-        # 给user1填充Notification 表
+
+        # Adding notifications for user1
         notificationsList = [
             {"message": "你有一个新的讨论回复", "created_at": "2023-04-01T12:00:00Z", "sender": "系统通知",
              "owner_id": user1.id, "haven_read": False},
@@ -648,6 +684,20 @@ def read_comments(event_id: int,db: Session = Depends(get_db)):
 #         print("Comment not found")  # Log if the post is not found
 #         raise HTTPException(status_code=404, detail="Comment not found")
 #     return db_comment
+
+@app.post("/post_comments/{post_id}", response_model=PostCommentRead)
+def create_post_comment(post_id: int, comment: PostCommentCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
+    db_comment = PostComment(content=comment.content, owner_id=user_id, post_id=post_id)
+    db.add(db_comment)
+    db.commit()
+    db.refresh(db_comment)
+    return db_comment
+
+@app.get("/post_comments/{post_id}", response_model=List[PostCommentRead])
+def read_post_comments(post_id: int, db: Session = Depends(get_db)):
+    comments = db.query(PostComment).filter(PostComment.post_id == post_id).all()
+    return comments
+
 
 @app.post("/notifications/", response_model=NotificationRead)
 def create_notification(notification: NotificationCreate, db: Session = Depends(get_db),
