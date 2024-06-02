@@ -39,18 +39,23 @@ export default {
 </script>
 
 <style scoped>
-.modal-content {
-  background-color: #fefefe;
-  margin: 10% auto;
+@font-face {
+  font-family: "zql";
+  src: url("../assets/font/zql.woff2") format("woff2");
+}
+.post-details {
+  font-family: "zql";
+  width: 95%;
+  max-width: 800px;
+  margin: 20px auto;
   padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 450px;
+  background: white;
+  border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: left;
 }
 
-.post-details header h1 {
+header h1 {
   color: #34495e;
   font-size: 24px;
   margin-bottom: 20px;

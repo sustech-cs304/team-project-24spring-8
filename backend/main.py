@@ -7,7 +7,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session, relationship, joinedload
 from pydantic import BaseModel
 from jose import jwt, JWTError
-from typing import List
+from typing import List, Optional
 from datetime import datetime, timedelta
 import os
 import shutil
@@ -145,7 +145,7 @@ class PostRead(BaseModel):
     id: int
     title: str
     content: str
-    owner_id: int
+    owner_id: Optional[int]
 
 
 class PasswordUpdate(BaseModel):

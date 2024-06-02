@@ -1,189 +1,68 @@
 <template>
-  <div id="app" class="app-container">
-    <NavbarPage @update:currentComponent="setCurrentComponent" />
-    <div v-if="currentComponent === 'community'">
-      <CommunityPage />
-    </div>
-    <div v-else-if="currentComponent === 'events'">
-      <EventsPage />
-    </div>
-    <div v-else-if="currentComponent === 'recommendations'">
-      <RecommendationsList />
-    </div>
-    <h1>{{ message }}</h1>
-
-    <div class="button-container">
-      <button @click="fetchMessage" class="action-button">Fetch Message</button>
-      <button @click="goToReminders" class="action-button">查看提醒</button>
-      <button @click="goToUserProfile" class="action-button">用户配置</button>
-      <button @click="goToPostList" class="action-button">帖子列表</button>
-      <button @click="goToEventsPage" class="action-button">活动</button>
-      <button @click="fetchFirstUsername" class="action-button">获取第一个用户的用户名</button>
-      <button @click="goToMyTickets" class="action-button">我的购票</button>
-      <button @click="logout" class="action-button">退出登录</button>
-    </div>
-    
-    <!-- 模态框 -->
-    <div v-if="showModal" class="modal">
-      <div class="modal-content">
-        <span class="close" @click="closeModal">&times;</span>
-        <p>第一个用户的用户名: {{ username }}</p>
-      </div>
-    </div>
-
-    <router-view></router-view>
+  <div class="home-container">
+    <h1>{{ title }}</h1>
+    <!-- <video class="home-video" controls>
+      <source src="../assets/video/home-video.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video> -->
+    <router-link to="/posts" class="back-link">进入讨论列表</router-link>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-import router from '../router';
-
 export default {
-  name: 'HomePage',
-  router,
   data() {
     return {
-      currentComponent: 'home',
-      message: '',
-      username: '',
-      showModal: false,  // 控制模态框的显示
-      currentUsername: localStorage.getItem('username') // 获取存储的用户名
+      title: "Welcome to SUSTech Center"
     };
-  },
-  methods: {
-    async fetchMessage() {
-      try {
-        const response = await axios.get('http://localhost:8001/hello');
-        this.message = response.data.message;
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    async fetchFirstUsername() {
-      try {
-        const response = await axios.get('http://localhost:8001/users/1');
-        this.username = response.data.username;
-        this.showModal = true;  // 显示模态框
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    closeModal() {
-      this.showModal = false;  // 关闭模态框
-    },
-    goToReminders() {
-      this.$router.push({ name: 'ActivityReminders' });
-    },
-    goToUserProfile() {
-      this.$router.push({ name: 'UserProfile' });
-    },
-    goToEventsPage() {
-      this.$router.push({ name: 'EventsPage' });
-    },
-    goToRecommendationsList() {
-      this.$router.push({ name: 'RecommendationsList' });
-    },
-    goToPostList() {
-      this.$router.push({ name: 'PostList' });
-    },
-    goToMyTickets() {
-      this.$router.push({ name: 'MyTicketsPage' });
-    },
-    logout() {
-      localStorage.removeItem('access_token'); // 移除令牌
-      localStorage.removeItem('username'); // 移除用户名
-      delete axios.defaults.headers.common['Authorization']; // 删除默认头部
-      this.$router.push({ name: 'LoginPage' }); // 跳转到登录页面
-    }
   }
-};
+}
 </script>
 
 <style scoped>
-.app-container {
-  text-align: center;
-  padding: 20px;
-  background: linear-gradient(135deg, #957DAD, #D291BC);
-  color: white;
-  position: relative; /* 确保用户名显示在右上角 */
+@font-face {
+  font-family: "zql";
+  src: url("../assets/font/zql.woff2") format("woff2");
 }
 
-h1 {
-  color: #fff;
+.home-container {
+  font-family: "zql";
+  width: 95%;
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.home-container h1 {
+  color: #34495e;
+  font-size: 24px;
   margin-bottom: 20px;
 }
 
-.button-container {
-  display: flex;
-  justify-content: center;
-  flex-wrap: nowrap; /* 确保按钮在一行 */
-  margin: 20px 0;
-  overflow-x: auto;
+.home-video {
+  width: 100%;
+  height: auto;
+  margin-bottom: 20px;
 }
 
-.action-button {
-  margin: 0 5px; /* 调整按钮的左右间距 */
-  background-color: #6A0DAD;
-  color: #fff;
-  border: none;
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: white;
+  text-decoration: none;
+  background-color: #007bff;
   padding: 10px 15px;
   border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  white-space: nowrap;
+  transition: background-color 0.3s;
 }
 
-.action-button:hover {
-  background-color: #B48B9E;
-}
-
-p {
-  color: #fff;
-  margin-top: 20px;
-}
-
-/* 模态框样式 */
-.modal {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-  background-color: #101010;
-  padding: 20px;
-  border-radius: 5px;
-  text-align: center;
-  color: #fff;
-}
-
-.close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-/* 当前用户名显示样式 */
-.username-display {
-  position: absolute;
-  top: 10px;
-  right: 20px;
-  font-size: 18px;
-  color: #fff;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.username-display:hover {
+.back-link:hover {
+  background-color: #0056b3;
   text-decoration: underline;
 }
 </style>
