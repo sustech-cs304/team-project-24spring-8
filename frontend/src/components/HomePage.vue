@@ -1,11 +1,13 @@
 <template>
-  <div class="home-container">
-    <h1>{{ title }}</h1>
-    <!-- <video class="home-video" controls>
-      <source src="../assets/video/home-video.mp4" type="video/mp4">
+  <div>
+    <!-- <h1>{{ title }}</h1> -->
+    <video ref="homeVideo" class="home-video" autoplay muted>
+      <source src="../assets/demo.mp4" type="video/mp4">
       Your browser does not support the video tag.
-    </video> -->
-    <router-link to="/posts" class="back-link">进入讨论列表</router-link>
+    </video>
+    <!-- <button @click="toggleFullScreen" class="fullscreen-button">
+      {{ isFullScreen ? 'Exit Full Screen' : 'Play Full Screen' }}
+    </button> -->
   </div>
 </template>
 
@@ -13,8 +15,36 @@
 export default {
   data() {
     return {
-      title: "Welcome to SUSTech Center"
+      title: "Welcome to SUSTech Center",
+      isFullScreen: false
     };
+  },
+  methods: {
+    toggleFullScreen() {
+      const videoElement = this.$refs.homeVideo;
+      if (!this.isFullScreen) {
+        if (videoElement.requestFullscreen) {
+          videoElement.requestFullscreen();
+        } else if (videoElement.mozRequestFullScreen) { // Firefox
+          videoElement.mozRequestFullScreen();
+        } else if (videoElement.webkitRequestFullscreen) { // Chrome, Safari, and Opera
+          videoElement.webkitRequestFullscreen();
+        } else if (videoElement.msRequestFullscreen) { // IE/Edge
+          videoElement.msRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { // Firefox
+          document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { // Chrome, Safari, and Opera
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { // IE/Edge
+          document.msExitFullscreen();
+        }
+      }
+      this.isFullScreen = !this.isFullScreen;
+    }
   }
 }
 </script>
@@ -25,44 +55,23 @@ export default {
   src: url("../assets/font/zql.woff2") format("woff2");
 }
 
-.home-container {
-  font-family: "zql";
-  width: 95%;
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
-.home-container h1 {
-  color: #34495e;
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
 .home-video {
   width: 100%;
   height: auto;
-  margin-bottom: 20px;
 }
 
-.back-link {
-  display: block;
-  text-align: center;
+.fullscreen-button {
   margin-top: 20px;
-  color: white;
-  text-decoration: none;
+  padding: 10px 20px;
+  font-size: 16px;
   background-color: #007bff;
-  padding: 10px 15px;
+  color: white;
+  border: none;
   border-radius: 5px;
-  transition: background-color 0.3s;
+  cursor: pointer;
 }
 
-.back-link:hover {
+.fullscreen-button:hover {
   background-color: #0056b3;
-  text-decoration: underline;
 }
 </style>
