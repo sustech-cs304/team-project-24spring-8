@@ -107,7 +107,7 @@ export default {
         }
 
         // 添加发送通知的代码
-        await this.sendNotification(`成功购买了${this.bookingData.tickets}张票`, this.bookingData.name);
+        await this.sendNotification(`成功购买了${this.bookingData.tickets}张票`);
 
         this.resetBookingData();
         this.fetchTicketsLeft(); // 更新剩余票数
@@ -115,12 +115,12 @@ export default {
         this.errorMessage = '购票失败。' + (error.response && error.response.data.detail ? error.response.data.detail : error.message);
       }
     },
-    async sendNotification(message, sender) {
+    async sendNotification(message) {
       try {
         const token = localStorage.getItem('access_token');
         await axios.post('http://127.0.0.1:8001/notifications/', {
           message: message,
-          sender: sender
+          sender: "购票系统"
         }, {
           headers: { 'Authorization': `Bearer ${token}` }
         });

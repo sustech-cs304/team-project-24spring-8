@@ -786,7 +786,7 @@ class NotificationsResponse(BaseModel):
 @app.get("/notifications/", response_model=NotificationsResponse)  # 修改这里使用新的响应模型
 def read_notifications(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
     print(f"Fetching notifications for user_id: {user_id}")
-    notifications = db.query(Notification).filter(Notification.owner_id == user_id).all()
+    notifications = db.query(Notification).filter(Notification.owner_id == user_id).order_by(Notification.created_at.desc()).all()
     print(f"Fetched {len(notifications)} notifications")
     return NotificationsResponse(
         count=len(notifications),
