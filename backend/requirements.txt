@@ -5,4 +5,4 @@ pydantic==1.9.1
 python-jose==3.3.0
 databases==0.6.0
 aiohttp==3.8.1
-python-multipart==0.0.5  # 添加这一行
+python-multipart==0.0.5  # 添加这一�?
