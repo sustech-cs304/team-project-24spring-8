@@ -21,7 +21,9 @@
         <input type="number" id="tickets" v-model.number="bookingData.tickets" placeholder="票数" min="1" :max="ticketsLeft" @input="updateTicketsLeft" required>
       </div>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-      <button type="submit" class="save-btn">提交订单</button>
+      <div class="button_content">
+        <button type="submit" class="save-btn">提交订单</button>
+      </div>
     </form>
   </div>
 </template>
@@ -145,6 +147,10 @@ export default {
 </script>
 
 <style scoped>
+@font-face {
+  font-family: "zql";
+  src: url("../assets/font/zql.woff2") format("woff2");
+}
 .eventbooking {
   max-width: 600px;
   margin: 20px auto;
@@ -174,8 +180,30 @@ input[type="tickets"] {
   border-radius: 5px;
 }
 
+input[type="text"]:focus,
+input[type="IDcard"]:focus,
+input[type="phonenumber"]:focus,
+input[type="tickets"]:focus {
+  border-color: #0056b3;
+}
+
+.button_content {
+  text-align: center;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.button_content span {
+  cursor: pointer;
+  font-size: 13px;
+  color: gray;
+  /* 文字垂直居中 */
+  margin-left: 10px;
+}
+
 .save-btn {
-  background-color: #8e44ad;
+  background-color: #0056b3;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -185,6 +213,11 @@ input[type="tickets"] {
 }
 
 .save-btn:hover {
-  background-color: #5e3370;
+  background-color: #34495e;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
 }
 </style>
