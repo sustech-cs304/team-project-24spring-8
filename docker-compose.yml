@@ -1,20 +1,12 @@
 version: '3.8'
 
 services:
-  backend:
-    image: beifang12138/myapp-backend:latest
-    volumes:
-      - ./backend:/app  # 确保 ./backend 目录存在且包含所有必要的文件
-    ports:
-      - "8001:8001"
-    environment:
-      - PYTHONUNBUFFERED=1
-
   frontend:
     image: beifang12138/myapp-frontend:latest
-    volumes:
-      - ./frontend:/app  # 确保 ./frontend 目录存在且包含所有必要的文件
     ports:
       - "8080:8080"
-    environment:
-      - CHOKIDAR_USEPOLLING=true
+
+  backend:
+    image: beifang12138/myapp-backend:latest
+    ports:
+      - "8001:8001"
