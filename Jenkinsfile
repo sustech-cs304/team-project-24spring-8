@@ -30,16 +30,13 @@
 pipeline {
     agent any
         stages{
-        // stage('Package') {
-        //     steps {
-        //     checkout scmGit(branches: [[name: '*/master']], extensions: [],
-        //     userRemoteConfigs: [[url: 'https://github.com/Epiphanye30/Teedy.git']])
-        //     sh 'mvn -B -DskipTests clean package'
-        //     }
-        // }
+            stage('Automated test') {
+            steps{
+                sh 'newman run se.postman_collection.json -e token.postman_environment.json --reporters html,cli --reporter-html-export output.html'
+            }
+        }
             stage('Building image') {
             steps{
-                //your command
                 sh 'docker-compose build'
             }
         }
