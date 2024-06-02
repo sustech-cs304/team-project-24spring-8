@@ -57,7 +57,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/eventbooking',
+    path: '/events/:eventID',
     name: 'EventBooking',
     component: EventBooking,
     meta: { requiresAuth: true },
@@ -113,7 +113,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/my-tickets',
+    path: '/tickets',
     name: 'MyTicketsPage',
     component: MyTicketsPage,
     meta: { requiresAuth: true },

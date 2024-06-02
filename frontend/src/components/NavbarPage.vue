@@ -4,6 +4,7 @@
       <router-link to="/home" class="nav-link">Home</router-link>
       <router-link to="/discussions" class="nav-link">Discussion</router-link>
       <router-link to="/events" class="nav-link">Event</router-link>
+      <router-link to="/tickets" class="nav-link">Tickets</router-link>
     </div>
     <div>
       <router-link to="/notifications" class="notification-bell" @click="markAllNotificationsRead">
