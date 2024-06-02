@@ -104,9 +104,8 @@ export default {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (response.data.message) {
-          alert(response.data.message);
-        }
+        response.data.message
+        
 
         // 添加发送通知的代码
         await this.sendNotification(`成功购买了${this.bookingData.tickets}张票`);
