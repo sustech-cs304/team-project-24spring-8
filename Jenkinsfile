@@ -32,6 +32,7 @@ pipeline {
         stages{
             stage('Automated test') {
             steps{
+                sh 'pwd'
                 sh 'cd backend'
                 sh 'uvicorn main:app --port 8001'
                 sh 'newman run se.postman_collection.json -e token.postman_environment.json --reporters html,cli --reporter-html-export output.html'
