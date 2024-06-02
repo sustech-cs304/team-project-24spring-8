@@ -10,4 +10,3 @@ services:
     image: beifang12138/myapp-backend:latest
     ports:
       - "8001:8001"
-

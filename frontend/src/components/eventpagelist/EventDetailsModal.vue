@@ -8,7 +8,7 @@
         <p class="a_des">{{ event.description }}</p>
         <div class="a_time">
           <p>时间: {{ formatDate(event.event_time) }}</p>
-
+          <p>价格：{{ event.price }}</p>
           <p>
             持续:
             {{ formatDuration(event.duration_hours, event.duration_minutes) }}
