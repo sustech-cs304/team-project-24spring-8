@@ -88,19 +88,58 @@ export default {
 
 
 <style scoped>
+@font-face {
+  font-family: "zql";
+  src: url("../assets/font/zql.woff2") format("woff2");
+}
 .post-list {
+  font-family: "zql";
+  width: 95%;
   max-width: 800px;
   margin: 20px auto;
   padding: 20px;
-  background: linear-gradient(135deg, #957DAD, #D291BC);
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: left;
 }
 
-.post-list h1 {
-  color: #6A0DAD;
-  text-align: center;
+header h1 {
+  color: #34495e;
+  font-size: 24px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #34495e;
+}
+
+input[type="text"], textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.post-form {
   margin-bottom: 20px;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
 }
 
 .post-list ul {
@@ -108,66 +147,26 @@ export default {
   padding: 0;
 }
 
-.post-list li {
-  margin: 10px 0;
-  transition: all 0.3s ease;
-}
-
 .post-item {
-  border-bottom: 1px solid #eee;
+  margin: 10px 0;
   padding: 10px;
-  transition: background-color 0.3s ease;
+  border-bottom: 1px solid #ccc;
+  transition: background-color 0.3s;
 }
 
-.post-item:last-child {
-  border-bottom: none;
+.post-item:hover {
+  background-color: #f0f0f0;
 }
 
 .post-link {
   text-decoration: none;
-  color: #5E2D79;
+  color: #000000;
   font-size: 18px;
-  display: block;
-  transition: color 0.3s ease;
-}
-
-.post-link:hover {
-  color: #9A4DCE;
-  text-decoration: underline;
-}
-
-.post-item:hover {
-  background-color: #f4eaff;
 }
 
 .loading, .error {
   text-align: center;
+  color: #ff4d4f;
   margin-top: 20px;
-  color: #FF6347; /* Tomato color for error or loading messages */
-}
-/* 表单样式 */
-label {
-  display: block;
-  margin: 10px 0 5px;
-}
-
-input[type="text"], textarea {
-  width: 100%;
-  padding: 8px;
-  box-sizing: border-box;
-  margin-bottom: 10px;
-}
-
-.submit-button {
-  padding: 10px 15px;
-  background-color: #6A0DAD;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.submit-button:hover {
-  background-color: #B48B9E;
 }
 </style>
