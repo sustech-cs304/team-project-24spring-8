@@ -19,4 +19,8 @@ export default {
 
 <style>
 /* 这里可以添加你的全局样式 */
+#app {
+  background-color: #f4f6f9; /* 你想要的背景颜色 */
+  min-height: 100vh; /* 确保背景颜色覆盖整个视口高度 */
+}
 </style>
