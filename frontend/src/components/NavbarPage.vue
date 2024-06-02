@@ -12,8 +12,10 @@
         <span class="notification-count" v-if="notifications > 0">{{ notifications }}</span>
       </router-link>
       <div class="user-info">
+        <router-link to="/user-detail" class="nav-link user-info">
         <img :src="avatarUrl" alt="用户头像" class="avatar">
         <span class="username-display">当前用户: {{ username }}</span>
+        </router-link>
         <span class="user-money">余额: ¥{{ money }}</span>
       </div>
       <button @click="logout" class="action-button logout-button">退出登录</button>
