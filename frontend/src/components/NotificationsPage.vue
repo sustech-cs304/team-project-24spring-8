@@ -73,24 +73,36 @@ export default {
 </script>
 
 <style scoped>
+@font-face {
+  font-family: "zql";
+  src: url("../assets/font/zql.woff2") format("woff2");
+}
 .notifications-page {
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
-  font-family: Arial, sans-serif;
+  font-family: "zql";
+  width: 95%;
   max-width: 600px;
-  margin: 0 auto;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: left;
 }
 
-h1 {
-  color: #fff;
+header h1 {
+  color: #34495e;
+  font-size: 24px;
+}
+
+.button_content {
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
 }
 
 button {
-  margin: 10px 0;
   padding: 10px 20px;
   background-color: #007bff;
   color: white;
@@ -98,9 +110,7 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 10px;
 }
 
 button:hover {
@@ -119,7 +129,7 @@ ul {
 }
 
 .notification-item {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.8);
   margin: 10px 0;
   padding: 15px;
   border-radius: 8px;
@@ -133,16 +143,7 @@ ul {
 
 .no-notifications {
   text-align: center;
-  color: #ddd;
+  color: #34495e;
   font-size: 16px;
-}
-</style>
-
-<style>
-body {
-  margin: 0;
-  padding: 0;
-  /* background: linear-gradient(135deg, #6a11cb, #2575fc); */
-  font-family: Arial, sans-serif;
 }
 </style>
