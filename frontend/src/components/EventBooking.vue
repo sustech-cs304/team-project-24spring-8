@@ -26,9 +26,9 @@
   </div>
 </template>
 
-
 <script>
 import axios from 'axios';
+
 export default {
   data() {
     return {
@@ -101,13 +101,31 @@ export default {
         }, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+
         if (response.data.message) {
           alert(response.data.message);
         }
+
+        // 添加发送通知的代码
+        await this.sendNotification(`成功购买了${this.bookingData.tickets}张票`, this.bookingData.name);
+
         this.resetBookingData();
         this.fetchTicketsLeft(); // 更新剩余票数
       } catch (error) {
         this.errorMessage = '购票失败。' + (error.response && error.response.data.detail ? error.response.data.detail : error.message);
+      }
+    },
+    async sendNotification(message, sender) {
+      try {
+        const token = localStorage.getItem('access_token');
+        await axios.post('http://127.0.0.1:8001/notifications/', {
+          message: message,
+          sender: sender
+        }, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+      } catch (error) {
+        console.error('Failed to send notification:', error);
       }
     },
     // 重置预订数据的函数
@@ -126,50 +144,47 @@ export default {
 };
 </script>
 
-
-<!-- 使用一个表单来收集用户的预订信息，包括姓名、电子邮件、票数和票务类型。
-通过 v-model 指令将表单输入的值绑定到 bookingData 对象中，以便在表单提交时收集用户输入的信息。
-当用户提交表单时，调用 updatebookingData 方法处理表单提交。
-在这个方法中添加表单验证逻辑，并向后端发送预订请求并处理响应。   -->
-
 <style scoped>
+.eventbooking {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
 
-  .eventbooking {
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      text-align: left;
-  }
+.eventbooking h2 {
+  color: #34495e;
+  font-size: 24px;
+}
 
-  .eventbooking h2 {
-      color: #34495e;
-      font-size: 24px;
-  }
-  .form-group {
-      margin-bottom: 15px;
-  }
+.form-group {
+  margin-bottom: 15px;
+}
 
-  input[type="text"], input[type="IDcard"], input[type="phonenumber"],input[type="tickets"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-  }
+input[type="text"],
+input[type="IDcard"],
+input[type="phonenumber"],
+input[type="tickets"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
 
-  .save-btn {
-      background-color: #8e44ad;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-  }
+.save-btn {
+  background-color: #8e44ad;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
 
-  .save-btn:hover {
-      background-color: #5e3370;
-  }
+.save-btn:hover {
+  background-color: #5e3370;
+}
 </style>
