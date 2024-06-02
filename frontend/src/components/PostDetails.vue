@@ -39,42 +39,50 @@ export default {
 </script>
 
 <style scoped>
-.post-details {
-  max-width: 800px;
-  margin: 20px auto;
+.modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
   padding: 20px;
-  background: linear-gradient(135deg, #957DAD, #D291BC);
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 450px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: left;
-  color: #FFFFFF;
 }
 
-.post-details h1 {
-  color: #6A0DAD;
-  text-align: center;
+.post-details header h1 {
+  color: #34495e;
+  font-size: 24px;
   margin-bottom: 20px;
 }
 
-p {
+.post-content {
   font-size: 16px;
   line-height: 1.6;
+  color: #333;
+  text-indent: 2em;
+  margin-bottom: 20px;
+}
+
+.error, .no-content {
+  color: #ff4d4f;
+  text-align: center;
 }
 
 .back-link {
   display: block;
   text-align: center;
   margin-top: 20px;
-  color: #FFFFFF;
+  color: white;
   text-decoration: none;
-  background-color: #957DAD;
+  background-color: #007bff;
   padding: 10px 15px;
   border-radius: 5px;
   transition: background-color 0.3s;
 }
 
 .back-link:hover {
-  background-color: #B48B9E;
+  background-color: #0056b3;
   text-decoration: underline;
 }
 </style>
