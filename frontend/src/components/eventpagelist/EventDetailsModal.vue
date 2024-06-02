@@ -2,33 +2,48 @@
   <div class="modal" @click.self="$emit('close')">
     <div class="modal-content">
       <span class="close" @click="$emit('close')">&times;</span>
-      <h2>详细信息</h2>
-      <h3>{{ event.name }}</h3>
-      <p>Date: {{ formatDate(event.event_time) }}</p>
-      <p>Description: {{ event.description }}</p>
-      <p>Duration: {{ formatDuration(event.duration_hours, event.duration_minutes) }}</p>
-      <p>Price: {{ formatCurrency(event.price) }}</p> <!-- 显示价格 -->
-      <p>Tickets Sold: {{ event.tickets_sold }}</p>
-      <p>Max Tickets: {{ event.max_tickets }}</p>
+      <div style="text-align: center"><h2>详细信息</h2></div>
+      <div class="a_name">{{ event.name }}</div>
+      <div class="a_main">
+        <p class="a_des">{{ event.description }}</p>
+        <div class="a_time">
+          <p>时间: {{ formatDate(event.event_time) }}</p>
 
+          <p>
+            持续:
+            {{ formatDuration(event.duration_hours, event.duration_minutes) }}
+          </p>
+        </div>
+        <div class="a_ticket">
+          <p>已售票数: {{ event.tickets_sold }}</p>
+          <p>最大参会: {{ event.max_tickets }}</p>
+        </div>
+      </div>
+      <button @click="bookTickets" style="margin-bottom: 10px">购票</button>
       <button @click="toggleExpand">查看更多</button>
 
       <!-- 可展开的内容区域 -->
       <div v-if="isExpanded">
-        <button @click="bookTickets">购票</button>
         <div class="comment-list">
-          <h1>评论区</h1>
+          <span>评论区</span>
 
           <!-- 评论表单 -->
           <form @submit.prevent="submitComment">
-            <div>
-              <label for="commentContent">评论:</label>
-              <input id="commentContent" v-model="newComment.content" type="text" required>
+            <div class="comment_content">
+              <!-- <label for="commentContent">评论:</label> -->
+              <input
+                class="form-control"
+                id="commentContent"
+                v-model="newComment.content"
+                type="text"
+                required
+              /><button type="submit" class="submit-button">评论</button>
             </div>
-            <button type="submit" class="submit-button">评论</button>
           </form>
           <ul>
-            <li v-for="comment in comments" :key="comment.id" class="post-item">{{ comment.content }}</li>
+            <li v-for="comment in comments" :key="comment.id" class="post-item">
+              {{ comment.content }}
+            </li>
           </ul>
           <div v-if="loading" class="loading">加载中...</div>
           <div v-if="error" class="error">{{ error }}</div>
@@ -39,23 +54,23 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 export default {
   props: {
     event: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
       isExpanded: false,
       comments: [],
       newComment: {
-        content: '',
+        content: "",
       },
       loading: false,
-      error: null
+      error: null,
     };
   },
   created() {
@@ -65,59 +80,72 @@ export default {
     async fetchComments() {
       this.loading = true;
       try {
-        const response = await axios.get(`http://localhost:8001/comments/${this.event.id}`);
+        const response = await axios.get(
+          `http://localhost:8001/comments/${this.event.id}`
+        );
         this.comments = response.data;
       } catch (error) {
-        this.error = '无法加载评论。' + error.message;
+        this.error = "无法加载评论。" + error.message;
       } finally {
         this.loading = false;
       }
     },
     async submitComment() {
       if (!this.newComment.content) {
-        alert('内容不能为空！');
+        alert("内容不能为空！");
         return;
       }
       try {
-        const token = localStorage.getItem('access_token');  // 确保Token被正确获取
+        const token = localStorage.getItem("access_token"); // 确保Token被正确获取
         if (!token) {
-          this.error = '未授权：无Token';
-          return;  // 如果没有Token，不发送请求
+          this.error = "未授权：无Token";
+          return; // 如果没有Token，不发送请求
         }
-        const response = await axios.post(`http://localhost:8001/comments/${this.event.id}`, {
-          content: this.newComment.content,
-        }, {
-          headers: { 'Authorization': `Bearer ${token}` }  // 确保Token正确添加到请求头
-        });
+        const response = await axios.post(
+          `http://localhost:8001/comments/${this.event.id}`,
+          {
+            content: this.newComment.content,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` }, // 确保Token正确添加到请求头
+          }
+        );
         this.comments.push(response.data);
-        this.newComment.content = '';
+        this.newComment.content = "";
       } catch (error) {
-        this.error = '发送评论失败。' + error.response.data.detail;  // 显示从后端获取的错误信息
+        this.error = "发送评论失败。" + error.response.data.detail; // 显示从后端获取的错误信息
       }
     },
     formatDate(date) {
-      if (!date) return '';
-      const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+      if (!date) return "";
+      const options = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      };
       return new Date(date).toLocaleDateString(undefined, options);
     },
     formatDuration(hours, minutes) {
-      if (hours == null && minutes == null) return 'N/A';
-      const hrs = hours ? `${hours}h` : '';
-      const mins = minutes ? `${minutes}m` : '';
+      // 新增方法
+      if (hours == null && minutes == null) return "N/A";
+      const hrs = hours ? `${hours}h` : "";
+      const mins = minutes ? `${minutes}m` : "";
       return `${hrs} ${mins}`.trim();
     },
-    formatCurrency(value) {
-      if (value == null) return 'N/A';
-      return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'CNY' }).format(value);
-    },
+
     bookTickets() {
       // 跳转到订票页面
-      this.$router.push({ name: 'EventBooking', params: { eventID: this.event.id } });
+      this.$router.push({
+        name: "EventBooking",
+        params: { eventID: this.event.id },
+      });
     },
     toggleExpand() {
       this.isExpanded = !this.isExpanded;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -131,15 +159,17 @@ export default {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {
+  cursor: pointer;
   background-color: #fefefe;
   margin: 10% auto;
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
+  max-width: 450px;
 }
 
 .close {
@@ -160,8 +190,9 @@ export default {
   margin-top: 20px;
 }
 
-.comment-list h3 {
-  margin-bottom: 10px;
+.comment-list span {
+  font-size: 16px;
+  font-weight: 700;
 }
 
 input[type="text"] {
@@ -173,7 +204,7 @@ input[type="text"] {
 
 button {
   padding: 8px 16px;
-  background-color: #007BFF;
+  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 4px;
@@ -192,5 +223,57 @@ button:hover {
 .comment-list li {
   margin: 10px 0;
   transition: all 0.3s ease;
+}
+.comment_content {
+  margin-top: 20px;
+  display: flex;
+}
+
+.comment_content input {
+  display: flex;
+  flex: 3;
+}
+.submit-button {
+  flex: 1;
+}
+
+.a_name {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+.a_des {
+  /* 缩进 */
+  text-indent: 2em;
+  font-size: 16px;
+  margin-bottom: 20px;
+  border: black 1px dotted;
+  padding: 10px;
+}
+
+.a_time {
+  font-weight: 100;
+  font-size: 13px;
+  color: grey;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+.a_time p {
+  margin-bottom: 0px;
+}
+.a_ticket {
+  font-weight: 100;
+  font-size: 13px;
+  color: grey;
+  display: flex;
+  justify-content: space-between;
+}
+
+.post-item {
+  border: 1px black solid;
+  padding: 6px;
+  padding-left: 15px;
+  border-radius: 0px 15px 15px 23px;
 }
 </style>
