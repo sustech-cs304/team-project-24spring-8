@@ -10,6 +10,8 @@ pipeline {
         }
             stage('Building image') {
             steps{
+                sh 'docker rm -f $(docker ps -aq) || true'
+                sh 'docker rmi -f $(docker images -aq) || true'
                 sh 'docker-compose build'
             }
         }
