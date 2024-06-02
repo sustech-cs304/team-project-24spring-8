@@ -29,7 +29,8 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     full_name = Column(String)
-    hashed_password = Column(String) 
+    hashed_password = Column(String)
+    money = Column(Integer, default=0)
     avatar_path = Column(String, default="avatars/default_avatar.png")
     events = relationship("Event", back_populates="owner")
     posts = relationship("Post", back_populates="owner")
@@ -129,6 +130,7 @@ class UserCreate(BaseModel):
     email: str
     full_name: str
     hashed_password: str
+    money: int
 
 
 class UserRead(BaseModel):
@@ -137,11 +139,13 @@ class UserRead(BaseModel):
     email: str
     full_name: str
     avatar_path: str
+    money: int
 
 
 class UserLogin(BaseModel):
     username: str
     password: str
+
 
 class UserUpdate(BaseModel):
     full_name: str
@@ -306,11 +310,11 @@ def startup_event():
     # Adding users
     test_users = [
         {"username": "user1", "email": "user1@example.com", "full_name": "User One",
-         "hashed_password": "1", "avatar_path": "avatars/1_avatar.jpg"},
+         "hashed_password": "1", "avatar_path": "avatars/1_avatar.jpg", "money": 200},
         {"username": "user2", "email": "user2@example.com", "full_name": "User Two",
-         "hashed_password": "2", "avatar_path": "avatars/2_avatar.jpg"},
+         "hashed_password": "2", "avatar_path": "avatars/2_avatar.jpg", "money": 200},
         {"username": "user3", "email": "user3@example.com", "full_name": "User Three",
-         "hashed_password": "3", "avatar_path": "avatars/3_avatar.jpg"}
+         "hashed_password": "3", "avatar_path": "avatars/3_avatar.jpg", "money": 200}
     ]
     for user_data in test_users:
         user = db.query(User).filter(User.username == user_data['username']).first()
@@ -600,7 +604,7 @@ def delete_event(event_id: int, db: Session = Depends(get_db), user_id: int = De
 
 
 @app.post("/tickets/{event_id}", response_model=dict)
-def create_ticket(event_id: int, ticket: TicketCreate, db: Session = Depends(get_db),user_id: int = Depends(get_current_user_id)):
+def create_ticket(event_id: int, ticket: TicketCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
     # 确认事件ID是否有效
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
@@ -610,16 +614,32 @@ def create_ticket(event_id: int, ticket: TicketCreate, db: Session = Depends(get
     if event.tickets_sold >= event.max_tickets:
         raise HTTPException(status_code=400, detail="Tickets are sold out for this event")
 
+    # 获取当前用户信息
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # 计算购票总金额
+    total_cost = event.price * ticket.number
+
+    # 检查用户余额是否足够支付购票费用
+    if user.money < total_cost:
+        raise HTTPException(status_code=400, detail="资金无法支付票价")
+
     # 创建票务记录的逻辑
     new_ticket = Ticket(event_id=event_id, owner_id=user_id, number=ticket.number, name=ticket.name,
                         IDcard=ticket.IDcard, phonenumber=ticket.phonenumber)
     db.add(new_ticket)
-    # 更新已售出票数
+
+    # 更新已售出票数和用户余额
     event.tickets_sold += ticket.number
+    user.money -= total_cost
+
     db.commit()
     db.refresh(new_ticket)
 
     return {"message": "Ticket created successfully"}
+
 
 
 @app.get("/events/{event_id}/event_name")
