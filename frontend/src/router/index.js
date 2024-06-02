@@ -113,7 +113,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/my-tickets',
+    path: '/tickets',
     name: 'MyTicketsPage',
     component: MyTicketsPage,
     meta: { requiresAuth: true },
