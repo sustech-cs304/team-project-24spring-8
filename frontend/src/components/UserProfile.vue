@@ -81,7 +81,12 @@ label {
   margin-bottom: 5px;
   color: #f0e8f0;
 }
-
+/**
+* AI-generated-content
+* tool: ChatGPT
+* version: 4
+* usage: Add styles to the input fields and buttons to make them more visually appealing and user-friendly.
+*/
 input[type="text"], input[type="email"], input[type="file"] {
   width: 100%;
   padding: 10px;

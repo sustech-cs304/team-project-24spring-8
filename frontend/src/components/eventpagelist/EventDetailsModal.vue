@@ -21,7 +21,12 @@
       </div>
       <button @click="bookTickets" style="margin-bottom: 10px">购票</button>
       <button @click="toggleExpand">查看更多</button>
-
+<!-- /**
+* AI-generated-content
+* tool: ChatGPT
+* version: 4
+* usage: Make sure comments can be displayed correctly
+*/ -->
       <!-- 可展开的内容区域 -->
       <div v-if="isExpanded">
         <div class="comment-list">

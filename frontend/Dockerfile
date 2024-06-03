@@ -1,7 +1,5 @@
-# ʹ�ùٷ��� Node.js ������Ϊ��������
 FROM node:14
 
-# ���ù���Ŀ¼
 WORKDIR /app
 
 COPY package*.json ./

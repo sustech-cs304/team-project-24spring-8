@@ -1,3 +1,10 @@
+<!-- /**
+* AI-generated-content
+* tool: ChatGPT
+* version: 4
+* usage: Add avatar before the comment content
+*/ -->
+
 <template>
   <div class="post-details">
     <h1>{{ post ? post.title : "Post Not Found" }}</h1>

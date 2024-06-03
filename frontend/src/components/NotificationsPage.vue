@@ -1,3 +1,10 @@
+<!-- /**
+* AI-generated-content
+* tool: ChatGPT
+* version: 4
+* usage: Add a button to refresh notifications and a button to add a new notification.
+*/ -->
+
 <template>
   <div class="notifications-page">
     <h1>通知</h1>
