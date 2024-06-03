@@ -17,7 +17,6 @@ SECRET_KEY = "YOUR_SECRET_KEY"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# 创建数据库引擎
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -301,6 +300,11 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     return {"access_token": access_token, "token_type": "bearer", "user_id": user.id}
 
 
+# AI-generated-content
+# tool: ChatGPT
+# version: 4
+# usage: Add examples to database.
+
 UPLOAD_DIRECTORY = "avatars"
 @app.on_event("startup")
 def startup_event():
@@ -517,7 +521,7 @@ async def upload_avatar(user_id: int, file: UploadFile = File(...), db: Session 
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
 
-    user.avatar_path = f"avatars/{user_id}_{file.filename}"  # 更新用户头像路径
+    user.avatar_path = f"avatars/{user_id}_{file.filename}"
     db.commit()
     db.refresh(user)
     return user
@@ -602,7 +606,12 @@ def delete_event(event_id: int, db: Session = Depends(get_db), user_id: int = De
     db.commit()
     return {"message": "Event deleted"}
 
-
+#
+#   AI-generated-content
+#   tool: ChatGPT
+#   version: 4
+#   usage: Add tickets system to the event management system
+#
 @app.post("/tickets/{event_id}", response_model=dict)
 def create_ticket(event_id: int, ticket: TicketCreate, db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
     # 确认事件ID是否有效
@@ -803,7 +812,7 @@ class NotificationsResponse(BaseModel):
     notifications: List[NotificationRead]
 
 
-@app.get("/notifications/", response_model=NotificationsResponse)  # 修改这里使用新的响应模型
+@app.get("/notifications/", response_model=NotificationsResponse)
 def read_notifications(db: Session = Depends(get_db), user_id: int = Depends(get_current_user_id)):
     print(f"Fetching notifications for user_id: {user_id}")
     notifications = db.query(Notification).filter(Notification.owner_id == user_id).order_by(Notification.created_at.desc()).all()

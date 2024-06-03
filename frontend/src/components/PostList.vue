@@ -61,6 +61,12 @@ export default {
       alert('标题和内容不能为空！');
       return;
     }
+/**
+* AI-generated-content
+* tool: ChatGPT
+* version: 4
+* usage: Make sure authorization is set up before making the request.
+*/
     try {
       const token = localStorage.getItem('access_token');  // 确保Token被正确获取
       if (!token) {

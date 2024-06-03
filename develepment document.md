@@ -60,6 +60,7 @@ pip install fastapi uvicorn sqlalchemy pydantic "python-jose[cryptography]"
   |-- Pages
 |-- /router
 |-- store
+>>>>>>> 23899e716f33dc01e001d6a5127096a8834e3c53
 |-- requirements.txt
 |-- README.md
 |-- .env (for environment variables)

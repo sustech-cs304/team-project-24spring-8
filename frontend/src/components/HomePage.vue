@@ -1,3 +1,9 @@
+<!-- /**
+* AI-generated-content
+* tool: ChatGPT
+* version: 4
+* usage: Make sure home page can work properly on different browsers.
+*/ -->
 <template>
   <div>
     <!-- <h1>{{ title }}</h1> -->

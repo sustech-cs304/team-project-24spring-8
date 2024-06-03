@@ -1,3 +1,11 @@
+<!-- /**
+* AI-generated-content
+* tool: ChatGPT
+* version: 4
+* usage: Try adding Navbar to app
+*/ -->
+
+
 <template>
   <div id="app">
     <Navbar />   <!-- 引入导航栏 -->

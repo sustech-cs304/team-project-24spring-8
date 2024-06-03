@@ -38,7 +38,12 @@ export default {
       const formData = new URLSearchParams();
       formData.append('username', this.username);
       formData.append('password', this.password);
-
+/**
+* AI-generated-content
+* tool: ChatGPT
+* version: 4
+* usage: Make sure login is correct
+*/
       try {
         const response = await axios.post('http://localhost:8001/token', formData);
         const { access_token, user_id } = response.data;
