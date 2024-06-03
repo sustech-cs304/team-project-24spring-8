@@ -62,4 +62,12 @@
 
 ### 安装与运行
 
+下载安装docker，使用代码
+`docker pull beifang12138/myapp-backend:latest`
+`docker pull beifang12138/myapp-frontend:latest`
+拉取镜像，并使用代码
+`docker run -d -p 8001:8001 --name myapp-backend beifang12138/myapp-backend:latest`
+`docker run -d -p 8080:8080 --name myapp-frontend beifang12138/myapp-frontend:latest`
+运行容器
+
 
