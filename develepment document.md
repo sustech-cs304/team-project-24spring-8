@@ -42,22 +42,24 @@ pip install fastapi uvicorn sqlalchemy pydantic "python-jose[cryptography]"
 建议的项目目录结构如下：
 
 ```plaintext
-/your-project
-|-- /app
-|   |-- __init__.py
-|   |-- main.py
-|   |-- models.py
-|   |-- schemas.py
-|   |-- dependencies.py
-|   |-- routers
-|       |-- __init__.py
-|       |-- users.py
-|       |-- events.py
-|       |-- posts.py
-|-- /tests
-|   |-- __init__.py
-|   |-- test_main.py
-|   |-- test_models.py
+/backend
+|-- /apps
+|-- /avatars
+|-- /core
+|-- /db
+|-- /utils
+|-- main.py
+|-- test_main.py
+/frontend
+|-- /public
+  |-- favicon.ico
+  |-- index.html
+|-- /src
+  |-- assets
+|-- /components
+  |-- Pages
+|-- /router
+|-- store
 |-- requirements.txt
 |-- README.md
 |-- .env (for environment variables)
