@@ -3,7 +3,7 @@
     <h2>购票</h2>
     <p>{{ eventName }}</p>
     <p>剩余票数：{{ ticketsLeft }}</p>
-    <form @submit.prevent="createTicket" class="eventbooking">
+    <form @submit.prevent="createTicket" class="tickets">
       <div class="form-group">
         <label for="name">姓名:</label>
         <input id="name" v-model="bookingData.name" placeholder="您的姓名" required>
@@ -151,7 +151,9 @@ export default {
   src: url("../assets/font/zql.woff2") format("woff2");
 }
 .eventbooking {
-  max-width: 600px;
+  font-family: "zql";
+  width: 95%;
+  max-width: 800px;
   margin: 20px auto;
   padding: 20px;
   background: white;
@@ -163,6 +165,12 @@ export default {
 .eventbooking h2 {
   color: #34495e;
   font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.tickets{
+  margin-top: 20px;
 }
 
 .form-group {
@@ -183,7 +191,7 @@ input[type="text"]:focus,
 input[type="IDcard"]:focus,
 input[type="phonenumber"]:focus,
 input[type="tickets"]:focus {
-  border-color: #0056b3;
+  border-color: #007bff;
 }
 
 .button_content {
@@ -202,7 +210,7 @@ input[type="tickets"]:focus {
 }
 
 .save-btn {
-  background-color: #0056b3;
+  background-color: #007bff;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -212,7 +220,7 @@ input[type="tickets"]:focus {
 }
 
 .save-btn:hover {
-  background-color: #34495e;
+  background-color: #0056b3;
 }
 
 .error {
